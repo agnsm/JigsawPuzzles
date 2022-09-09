@@ -1,0 +1,7 @@
+<canvas #jigsawCanvas class="jigsaw-canvas"
+  (mousedown)="dragPiece($event)" 
+  (mousemove)="movePiece($event)"
+  (mouseup)="dropPiece($event)">
+</canvas>
+
+<img #image src="../../../assets/test-puzzle.jpg" alt="">
