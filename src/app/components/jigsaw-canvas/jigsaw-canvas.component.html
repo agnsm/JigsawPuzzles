@@ -1,6 +1,6 @@
-<canvas #jigsawCanvas class="jigsaw-canvas"
-  (mousedown)="dragPiece($event)" 
-  (mousemove)="movePiece($event)"
+<canvas #canvas class="jigsaw"
+  (mousedown)="pickUpPiece($event)" 
+  (mousemove)="dragPiece($event)"
   (mouseup)="dropPiece($event)">
 </canvas>
 

@@ -7,16 +7,16 @@ import { Piece } from 'src/app/models/piece';
   styleUrls: ['./jigsaw-canvas.component.scss']
 })
 export class JigsawCanvasComponent implements OnInit, AfterViewInit {
-  @ViewChild('jigsawCanvas') jigsawCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('image') image!: ElementRef<HTMLImageElement>;
   context!: CanvasRenderingContext2D;
 
-  jigsawSize = { rows: 2, cols: 2 };
+  canvasSize!: { width: number, height: number };
+  jigsawSize!: { rows: number, cols: number, width: number, height: number };
   pieceSize!: { width: number, height: number };
 
   pieces: Piece[] = [];
-
-  draggingPiece: Piece | null = null;
+  activePiece: Piece | null = null;
 
   constructor() { }
 
@@ -24,41 +24,61 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.context = this.jigsawCanvas.nativeElement.getContext('2d')!;
-
     setTimeout(() => {
-      this.setJigsawCanvasSize();
+      this.getContext();
+      this.setJigsawSize();
+      this.setCanvasSize();
       this.setPieceSize();
       this.displayBackground();
       this.displayBoundaries();
       this.cutImage();
     }, 1000);
-
   }
 
-  setJigsawCanvasSize() {
-    this.jigsawCanvas.nativeElement.width = 1.5 * this.image.nativeElement.width;
-    this.jigsawCanvas.nativeElement.height = 1.5 * this.image.nativeElement.height;
+  getContext() {
+    this.context = this.canvas.nativeElement.getContext('2d')!;
+  }
+
+  setCanvasSize() {
+    this.canvasSize = {
+      width: 1.5 * this.image.nativeElement.width,
+      height: 1.5 * this.image.nativeElement.height
+    };
+
+    this.canvas.nativeElement.width = 1.5 * this.jigsawSize.width;
+    this.canvas.nativeElement.height = 1.5 * this.jigsawSize.height;
+  }
+
+  setJigsawSize() {
+    this.jigsawSize = {
+      rows: 10,
+      cols: 10,
+      width: this.image.nativeElement.width,
+      height: this.image.nativeElement.height
+    };
   }
 
   setPieceSize() {
     this.pieceSize = { 
-      width: Math.floor(this.image.nativeElement.width / this.jigsawSize.cols),
-      height: Math.floor(this.image.nativeElement.height / this.jigsawSize.rows)
+      width: this.jigsawSize.width / this.jigsawSize.cols,
+      height: this.jigsawSize.height / this.jigsawSize.rows
     };
+  }
+
+  clearCanvas() {
+    this.context.clearRect(0, 0, this.canvasSize.width, this.canvasSize.height);
   }
 
   displayBackground() {
     this.context.save();
     this.context.globalAlpha = 0.4;
-    this.context.drawImage(this.image.nativeElement, this.jigsawCanvas.nativeElement.width / 6, 0);
+    this.context.drawImage(this.image.nativeElement, this.canvasSize.width / 6, 10);
     this.context.restore();
   }
 
   displayBoundaries() {
     this.context.beginPath();
-    this.context.rect(this.jigsawCanvas.nativeElement.width / 6, 0, 
-      this.jigsawCanvas.nativeElement.width / 1.5, this.jigsawCanvas.nativeElement.height / 1.5);
+    this.context.rect(this.canvasSize.width / 6, 10, this.jigsawSize.width, this.jigsawSize.height);
     this.context.stroke();
     this.context.save();
   }
@@ -66,10 +86,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   cutImage() {
     for (let row = 0; row < this.jigsawSize.rows; row++) {
       for (let col = 0; col < this.jigsawSize.cols; col++) {
-        const sx = Math.floor(this.image.nativeElement.width / this.jigsawSize.cols) * col;
-        const sy = Math.floor(this.image.nativeElement.height / this.jigsawSize.rows) * row;
-        const dx = Math.random() * (this.jigsawCanvas.nativeElement.width - this.pieceSize.width);
-        const dy = Math.random() * (this.jigsawCanvas.nativeElement.height - this.pieceSize.height);
+        const sx = Math.floor(this.jigsawSize.width / this.jigsawSize.cols) * col;
+        const sy = Math.floor(this.jigsawSize.height / this.jigsawSize.rows) * row;
+        const dx = Math.random() * (this.canvasSize.width - this.pieceSize.width);
+        const dy = Math.random() * (this.canvasSize.height - this.pieceSize.height);
 
         const piece: Piece = { row, col, sx, sy, dx, dy };
         this.pieces.push(piece);
@@ -80,19 +100,21 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
     }
   }
 
-  dragPiece(event: MouseEvent) {
+  resetJigsawCanvas() {
+    this.clearCanvas();
+    this.displayBackground();
+    this.displayBoundaries();
+  }
+
+  pickUpPiece(event: MouseEvent) {
     const x = event.pageX;
     const y = event.pageY;
 
-    let pieceToMove: Piece | null = null;
-
-    for (let i = this.pieces.length - 1; i >= 0 && !this.draggingPiece; i--) {
+    for (let i = this.pieces.length - 1; i >= 0 && !this.activePiece; i--) {
       const piece = this.pieces[i];
 
       if (this.isMouseOverPiece(piece, x, y)) {
-        if (!pieceToMove) {
-          this.draggingPiece = piece;
-        }
+        this.activePiece = piece;
       }
     }
   }
@@ -106,33 +128,28 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
     }
   }
 
-  movePiece(event: MouseEvent) {
-    if (this.draggingPiece) {
+  dragPiece(event: MouseEvent) {
+    if (this.activePiece) {
       this.resetJigsawCanvas();
 
       this.pieces.forEach(piece => {
-        if (piece != this.draggingPiece)
-        this.context.drawImage(this.image.nativeElement, piece.sx, piece.sy, this.pieceSize.width, this.pieceSize.height,
-          piece.dx, piece.dy, this.pieceSize.width, this.pieceSize.height);
+        if (piece != this.activePiece) {
+          this.context.drawImage(this.image.nativeElement, piece.sx, piece.sy, this.pieceSize.width, this.pieceSize.height,
+            piece.dx, piece.dy, this.pieceSize.width, this.pieceSize.height);
+        }
       }); 
 
-      this.draggingPiece.dx = event.pageX - this.pieceSize.width / 2;
-      this.draggingPiece.dy = event.pageY - this.pieceSize.height / 2;
-      this.pieces.push(this.pieces.splice(this.pieces.indexOf(this.draggingPiece), 1)[0]);
+      this.activePiece.dx = event.pageX - this.pieceSize.width / 2;
+      this.activePiece.dy = event.pageY - this.pieceSize.height / 2;
 
-      this.context.drawImage(this.image.nativeElement, this.draggingPiece.sx, this.draggingPiece.sy, this.pieceSize.width, this.pieceSize.height,
-        this.draggingPiece.dx, this.draggingPiece.dy, this.pieceSize.width, this.pieceSize.height);
+      this.pieces.push(this.pieces.splice(this.pieces.indexOf(this.activePiece), 1)[0]);
+
+      this.context.drawImage(this.image.nativeElement, this.activePiece.sx, this.activePiece.sy, this.pieceSize.width, this.pieceSize.height,
+        this.activePiece.dx, this.activePiece.dy, this.pieceSize.width, this.pieceSize.height);
     }
   }
 
   dropPiece($event: MouseEvent) {
-    this.draggingPiece = null;
-  }
-
-  resetJigsawCanvas() {
-    this.context.clearRect(0, 0, this.jigsawCanvas.nativeElement.width, this.jigsawCanvas.nativeElement.height);
-
-    this.displayBackground();
-    this.displayBoundaries();
+    this.activePiece = null;
   }
 }
