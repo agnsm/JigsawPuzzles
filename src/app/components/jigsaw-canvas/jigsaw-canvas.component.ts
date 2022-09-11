@@ -54,7 +54,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   initializeCanvas() {
-    this.canvas = new Canvas(innerWidth, innerHeight);
+    this.canvas = new Canvas(1.5 * innerWidth, 1.5 * innerHeight);
   }
 
   setCanvasElementSize() {
@@ -67,7 +67,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       7, 10, 
       this.imageElement.nativeElement.width, 
       this.imageElement.nativeElement.height, 
-      innerWidth, innerHeight, 0.9
+      innerWidth, innerHeight, 0.75
       );
   }
 
@@ -100,8 +100,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       for (let col = 0; col < this.jigsaw.cols; col++) {
         const sx = this.jigsaw.pieceWidth * col;
         const sy = this.jigsaw.pieceHeight * row;
-        const dx = Math.random() * (this.canvas.width - this.jigsaw.pieceWidth);
-        const dy = Math.random() * (this.canvas.height - this.jigsaw.pieceHeight);
+        const dx = Math.random() * (innerWidth - this.jigsaw.pieceWidth);
+        const dy = Math.random() * (innerHeight - this.jigsaw.pieceHeight);
 
         const piece: Piece = new Piece(row, col, sx, sy, dx, dy);
         this.jigsaw.addPiece(piece);
