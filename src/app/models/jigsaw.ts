@@ -7,6 +7,8 @@ export class Jigsaw {
   height: number;
   x: number;
   y: number;
+  scale: number;
+  ratio: number;
   pieces: Piece[] = [];
   pieceWidth: number;
   pieceHeight: number;
@@ -14,17 +16,26 @@ export class Jigsaw {
   constructor(
     rows: number, 
     cols: number, 
-    width: number, 
-    height: number
-) {
+    imageWidth: number,
+    imageHeight: number,
+    canvasWidth: number, 
+    canvasHeight: number,
+    scale: number
+  ) {
     this.rows = rows;
     this.cols = cols;
-    this.width = width;
-    this.height = height;
-    this.x = width / 4;
-    this.y = height / 4;
-    this.pieceWidth = width / cols;
-    this.pieceHeight = height / rows;
+
+    this.scale = scale;
+    this.ratio = scale * Math.min(canvasWidth / imageWidth, canvasHeight / imageHeight);
+
+    this.width = imageWidth * this.ratio;
+    this.height = imageHeight * this.ratio;
+
+    this.x = (canvasWidth - this.width) / 2;
+    this.y = (canvasHeight - this.height) / 2;
+
+    this.pieceWidth = this.width / cols;
+    this.pieceHeight = this.height / rows;
   }
 
   addPiece(piece: Piece) {

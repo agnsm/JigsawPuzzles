@@ -13,7 +13,7 @@ export class Piece {
     sy: number, 
     dx: number, 
     dy: number
-) {
+  ) {
     this.row = row;
     this.col = col;
     this.sx = sx;

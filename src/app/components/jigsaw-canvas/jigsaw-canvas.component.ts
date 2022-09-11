@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Canvas } from 'src/app/models/canvas';
 import { Jigsaw } from 'src/app/models/jigsaw';
 import { Piece } from 'src/app/models/piece';
@@ -27,11 +27,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initializeContext();
-      this.initializeJigsaw();
-      this.initializeCanvas();
-      this.setCanvasElementSize();
 
-      this.resetCanvas();
+      this.adjustCanvas();
+      this.resetCanvasState();
+
       this.prepareJigsaw();
     }, 1000);
   }
@@ -40,24 +39,41 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
     this.context = this.canvasElement.nativeElement.getContext('2d')!;
   }
 
-  initializeJigsaw() {
-    this.jigsaw = new Jigsaw(
-      2, 2,
-      this.imageElement.nativeElement.width,
-      this.imageElement.nativeElement.height
-    );
+  adjustCanvas() {
+    this.initializeCanvas();
+    this.setCanvasElementSize();
+
+    this.initializeJigsaw();
+    this.setImageElementSize();
+  }
+
+  resetCanvasState() {
+    this.clearCanvas();
+    this.displayBoundaries();
+    this.displayBackground();
   }
 
   initializeCanvas() {
-    this.canvas = new Canvas(
-      1.5 * this.imageElement.nativeElement.width, 
-      1.5 * this.imageElement.nativeElement.height
-    );
+    this.canvas = new Canvas(innerWidth, innerHeight);
   }
 
   setCanvasElementSize() {
     this.canvasElement.nativeElement.width = this.canvas.width;
     this.canvasElement.nativeElement.height = this.canvas.height;
+  }
+
+  initializeJigsaw() {
+    this.jigsaw = new Jigsaw(
+      7, 10, 
+      this.imageElement.nativeElement.width, 
+      this.imageElement.nativeElement.height, 
+      innerWidth, innerHeight, 0.9
+      );
+  }
+
+  setImageElementSize() {
+    this.imageElement.nativeElement.width = this.jigsaw.width;
+    this.imageElement.nativeElement.height = this.jigsaw.height;
   }
 
   clearCanvas() {
@@ -74,14 +90,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   displayBackground() {
     this.context.save();
     this.context.globalAlpha = 0.4;
-    this.context.drawImage(this.imageElement.nativeElement, this.jigsaw.x, this.jigsaw.y);
+    this.context.drawImage(this.imageElement.nativeElement, 
+      this.jigsaw.x, this.jigsaw.y, this.jigsaw.width, this.jigsaw.height);
     this.context.restore();
-  }
-
-  resetCanvas() {
-    this.clearCanvas();
-    this.displayBoundaries();
-    this.displayBackground();
   }
 
   prepareJigsaw() {
@@ -123,7 +134,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
 
   dragPiece(event: MouseEvent) {
     if (this.activePiece) {
-      this.resetCanvas();
+      this.resetCanvasState();
 
       this.jigsaw.pieces.forEach(piece => {
         if (piece != this.activePiece) {
