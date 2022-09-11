@@ -42,9 +42,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   adjustCanvas() {
     this.initializeCanvas();
     this.setCanvasElementSize();
-
     this.initializeJigsaw();
-    this.setImageElementSize();
   }
 
   resetCanvasState() {
@@ -64,16 +62,11 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
 
   initializeJigsaw() {
     this.jigsaw = new Jigsaw(
-      7, 10, 
+      4, 4, 
       this.imageElement.nativeElement.width, 
       this.imageElement.nativeElement.height, 
       innerWidth, innerHeight, 0.75
       );
-  }
-
-  setImageElementSize() {
-    this.imageElement.nativeElement.width = this.jigsaw.width;
-    this.imageElement.nativeElement.height = this.jigsaw.height;
   }
 
   clearCanvas() {
@@ -98,8 +91,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   prepareJigsaw() {
     for (let row = 0; row < this.jigsaw.rows; row++) {
       for (let col = 0; col < this.jigsaw.cols; col++) {
-        const sx = this.jigsaw.pieceWidth * col;
-        const sy = this.jigsaw.pieceHeight * row;
+        const sx = this.jigsaw.imagePieceWidth * col;
+        const sy = this.jigsaw.imagePieceHeight * row;
         const dx = Math.random() * (innerWidth - this.jigsaw.pieceWidth);
         const dy = Math.random() * (innerHeight - this.jigsaw.pieceHeight);
 
@@ -107,7 +100,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
         this.jigsaw.addPiece(piece);
 
         this.context.drawImage(this.imageElement.nativeElement, 
-          sx, sy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight,
+          sx, sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
           dx, dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
       }
     }
@@ -139,7 +132,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       this.jigsaw.pieces.forEach(piece => {
         if (piece != this.activePiece) {
           this.context.drawImage(this.imageElement.nativeElement, 
-            piece.sx, piece.sy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight,
+            piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
             piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
         }
       }); 
@@ -150,7 +143,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       this.jigsaw.putPieceOnTop(this.activePiece);
 
       this.context.drawImage(this.imageElement.nativeElement, 
-        this.activePiece.sx, this.activePiece.sy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight,
+        this.activePiece.sx, this.activePiece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
         this.activePiece.dx, this.activePiece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
     }
   }

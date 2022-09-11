@@ -12,6 +12,8 @@ export class Jigsaw {
   pieces: Piece[] = [];
   pieceWidth: number;
   pieceHeight: number;
+  imagePieceWidth: number;
+  imagePieceHeight: number;
 
   constructor(
     rows: number, 
@@ -36,6 +38,9 @@ export class Jigsaw {
 
     this.pieceWidth = this.width / cols;
     this.pieceHeight = this.height / rows;
+
+    this.imagePieceWidth = imageWidth / cols;
+    this.imagePieceHeight = imageHeight / rows;
   }
 
   addPiece(piece: Piece) {
