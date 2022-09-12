@@ -91,12 +91,13 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   prepareJigsaw() {
     for (let row = 0; row < this.jigsaw.rows; row++) {
       for (let col = 0; col < this.jigsaw.cols; col++) {
+        const id = row * this.jigsaw.cols + col + 1;
         const sx = this.jigsaw.imagePieceWidth * col;
         const sy = this.jigsaw.imagePieceHeight * row;
         const dx = Math.random() * (innerWidth - this.jigsaw.pieceWidth);
         const dy = Math.random() * (innerHeight - this.jigsaw.pieceHeight);
 
-        const piece: Piece = new Piece(row, col, sx, sy, dx, dy);
+        const piece: Piece = new Piece(id, row, col, sx, sy, dx, dy);
         this.jigsaw.addPiece(piece);
 
         this.context.drawImage(this.imageElement.nativeElement, 
@@ -120,23 +121,60 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
     if (this.activePiece) {
       this.resetCanvasState();
 
+      const adjacentPieces = this.getAllAdjacentPieces(this.activePiece);
+
       this.jigsaw.pieces.forEach(piece => {
-        if (piece != this.activePiece) {
+        if (!adjacentPieces.includes(piece)) {
           this.context.drawImage(this.imageElement.nativeElement, 
             piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
             piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
         }
       }); 
 
-      this.activePiece.dx = event.pageX - this.jigsaw.pieceWidth / 2;
-      this.activePiece.dy = event.pageY - this.jigsaw.pieceHeight / 2;
+      const newPosition = {
+        x: event.pageX - this.jigsaw.pieceWidth / 2,
+        y: event.pageY - this.jigsaw.pieceHeight / 2,
+      }
 
+      const change = {
+        x: newPosition.x - this.activePiece.dx,
+        y: newPosition.y - this.activePiece.dy
+      }
+
+      this.activePiece.setPosition(newPosition.x, newPosition.y);
       this.jigsaw.movePieceToTop(this.activePiece);
 
       this.context.drawImage(this.imageElement.nativeElement, 
         this.activePiece.sx, this.activePiece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
         this.activePiece.dx, this.activePiece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
+
+      adjacentPieces.forEach(piece => {
+        if (piece != this.activePiece) {
+          piece.setPosition(piece.dx + change.x, piece.dy + change.y);
+          this.jigsaw.movePieceToTop(piece);
+  
+          this.context.drawImage(this.imageElement.nativeElement, 
+            piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
+            piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
+        }
+      });
     }
+  }
+
+ getAllAdjacentPieces(activePiece: Piece, allAdjacentPieces: Piece[] = []) {
+    const adjacentPieces = activePiece.connections
+      .filter(connection => connection.connected)
+      .map(connection => this.jigsaw.getPiece(connection.row, connection.col));
+
+    allAdjacentPieces.push(activePiece);
+
+    adjacentPieces.forEach(piece => {
+      if (!allAdjacentPieces.includes(piece)) {
+        this.getAllAdjacentPieces(piece, allAdjacentPieces);
+      }
+    });
+
+    return allAdjacentPieces;
   }
 
   dropPiece(event: MouseEvent) {
@@ -144,23 +182,65 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       if (this.isPieceInDefaultPosition(this.activePiece, event.pageX, event.pageY)) {
         this.resetCanvasState();
 
-        const defaultPosition = this.jigsaw.getDefaultPositionOfPiece(this.activePiece);
-        this.activePiece.dx = defaultPosition.x;
-        this.activePiece.dy = defaultPosition.y;
+        let defaultPosition = this.jigsaw.getDefaultPositionOfPiece(this.activePiece);
+        this.activePiece.setPosition(defaultPosition.x, defaultPosition.y);
         this.activePiece.locked = true;
+
+        this.jigsaw.movePieceToBottom(this.activePiece);
 
         this.context.drawImage(this.imageElement.nativeElement, 
           this.activePiece.sx, this.activePiece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
           defaultPosition.x, defaultPosition.y, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
 
-          this.jigsaw.pieces.forEach(piece => {
-            if (piece != this.activePiece) {
-              this.context.drawImage(this.imageElement.nativeElement, 
-                piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
-                piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
-            }
-          }); 
+        const adjacentPieces = this.getAllAdjacentPieces(this.activePiece);
+
+        adjacentPieces.forEach(piece => {
+          defaultPosition = this.jigsaw.getDefaultPositionOfPiece(piece);
+          piece.setPosition(defaultPosition.x, defaultPosition.y);
+          piece.locked = true;
+
+          this.jigsaw.movePieceToBottom(piece);
+  
+          this.context.drawImage(this.imageElement.nativeElement, 
+            piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
+            piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
+        });
+
+        this.jigsaw.pieces.forEach(piece => {
+          if (piece != this.activePiece) {
+            this.context.drawImage(this.imageElement.nativeElement, 
+              piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
+              piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
+          }
+        }); 
+      } else {
+        const adjacentPieces = this.getAllAdjacentPieces(this.activePiece);
+        let connector: Piece | null = null;
+
+        adjacentPieces.forEach(piece => {
+          let res = this.connectPiece(piece);
+          if (res) {
+            connector = res;
+          }
+        });
+
+        if (connector) {
+          this.resetCanvasState();
+
+          adjacentPieces.forEach(piece => {
+            let relativePosition = this.jigsaw.getRelativePositionOfPiece(piece, connector!);
+            piece.setPosition(relativePosition.x, relativePosition.y);
+
+            this.jigsaw.movePieceToTop(piece);
+          });
+
+        this.jigsaw.pieces.forEach(piece => {
+          this.context.drawImage(this.imageElement.nativeElement, 
+            piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
+            piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
+        });
       }
+    }
 
       this.activePiece = null;
     }
@@ -185,5 +265,65 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
     } else {
       return false;
     }
+  }
+
+  connectPiece(piece: Piece) {
+    const offset = { x: this.jigsaw.pieceWidth / 4, y: this.jigsaw.pieceHeight / 4 };
+
+    let connector: Piece | null = null;
+
+    for (let i = 0; i < piece.connections.length && !connector; i++) {
+      const connection = piece.connections[i];
+      const adjacentPiece = this.jigsaw.getPiece(connection.row, connection.col);
+
+      if (adjacentPiece && !connection.connected) {
+        switch (connection.direction) {
+          case 'left':
+            if (Math.abs(adjacentPiece.dx + this.jigsaw.pieceWidth - piece.dx) <= offset.x
+              && Math.abs(adjacentPiece.dy - piece.dy) <= offset.y) {
+              //piece.setPosition(adjacentPiece.dx + this.jigsaw.pieceWidth, adjacentPiece.dy);
+              piece.setConnection('left');
+              adjacentPiece.setConnection('right');
+              connector = adjacentPiece;
+            }
+            break;
+
+          case 'right':
+            if (Math.abs(piece.dx + this.jigsaw.pieceWidth - adjacentPiece.dx) <= offset.x
+              && Math.abs(adjacentPiece.dy - piece.dy) <= offset.y) {
+              //piece.setPosition(adjacentPiece.dx - this.jigsaw.pieceWidth, adjacentPiece.dy);
+              piece.setConnection('right');
+              adjacentPiece.setConnection('left');
+              connector = adjacentPiece;
+            }
+            break;
+
+          case 'top':
+            if (Math.abs(adjacentPiece.dy + this.jigsaw.pieceHeight - piece.dy) <= offset.y
+              && Math.abs(adjacentPiece.dx - piece.dx) <= offset.y) {
+              //piece.setPosition(adjacentPiece.dx, adjacentPiece.dy + this.jigsaw.pieceHeight);
+              piece.setConnection('top');
+              adjacentPiece.setConnection('bottom');
+              connector = adjacentPiece;
+            }
+            break;
+
+          case 'bottom':
+            if (Math.abs(piece.dy + this.jigsaw.pieceHeight - adjacentPiece.dy) <= offset.y
+              && Math.abs(adjacentPiece.dx - piece.dx) <= offset.y) {
+              //piece.setPosition(adjacentPiece.dx, adjacentPiece.dy - this.jigsaw.pieceHeight);
+              piece.setConnection('bottom');
+              adjacentPiece.setConnection('top');
+              connector = adjacentPiece;
+            }
+            break;
+        
+          default:
+            break;
+        }
+      }
+    };
+
+    return connector;
   }
 }

@@ -56,10 +56,34 @@ export class Jigsaw {
     }
   }
 
+  movePieceToBottom(piece: Piece) {
+    const index = this.pieces.indexOf(piece);
+
+    if (index >= 0) {
+      this.pieces.splice(index, 1);
+      this.pieces.unshift(piece);
+    }
+  }
+
   getDefaultPositionOfPiece(piece: Piece) {
     return {
       x: this.x + piece.col * this.pieceWidth,
       y: this.y + piece.row * this.pieceHeight
     };
+  }
+
+  getRelativePositionOfPiece(piece: Piece, basePiece: Piece) {
+    const basePieceDefaultPosition = this.getDefaultPositionOfPiece(basePiece);
+    const vector = { x: basePiece.dx - basePieceDefaultPosition.x, y: basePiece.dy - basePieceDefaultPosition.y };
+    const pieceDefaultPosition = this.getDefaultPositionOfPiece(piece);
+
+    return {
+      x: pieceDefaultPosition.x + vector.x,
+      y: pieceDefaultPosition.y + vector.y
+    };
+  }
+
+  getPiece(row: number, col: number) {
+    return this.pieces.filter(piece => piece.row == row && piece.col == col)[0];
   }
 }
