@@ -110,18 +110,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
     for (let i = this.jigsaw.pieces.length - 1; i >= 0 && !this.activePiece; i--) {
       const piece = this.jigsaw.pieces[i];
 
-      if (this.isMouseOverPiece(piece, event.pageX, event.pageY)) {
+      if (!piece.locked && this.isMouseOverPiece(piece, event.pageX, event.pageY)) {
         this.activePiece = piece;
       }
-    }
-  }
-
-  isMouseOverPiece(piece: Piece, x: number, y: number) {
-    if (x >= piece.dx && x <= piece.dx + this.jigsaw.pieceWidth 
-      && y >= piece.dy && y <= piece.dy + this.jigsaw.pieceHeight) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -140,7 +131,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       this.activePiece.dx = event.pageX - this.jigsaw.pieceWidth / 2;
       this.activePiece.dy = event.pageY - this.jigsaw.pieceHeight / 2;
 
-      this.jigsaw.putPieceOnTop(this.activePiece);
+      this.jigsaw.movePieceToTop(this.activePiece);
 
       this.context.drawImage(this.imageElement.nativeElement, 
         this.activePiece.sx, this.activePiece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
@@ -149,6 +140,50 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   dropPiece(event: MouseEvent) {
-    this.activePiece = null;
+    if (this.activePiece) {
+      if (this.isPieceInDefaultPosition(this.activePiece, event.pageX, event.pageY)) {
+        this.resetCanvasState();
+
+        const defaultPosition = this.jigsaw.getDefaultPositionOfPiece(this.activePiece);
+        this.activePiece.dx = defaultPosition.x;
+        this.activePiece.dy = defaultPosition.y;
+        this.activePiece.locked = true;
+
+        this.context.drawImage(this.imageElement.nativeElement, 
+          this.activePiece.sx, this.activePiece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
+          defaultPosition.x, defaultPosition.y, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
+
+          this.jigsaw.pieces.forEach(piece => {
+            if (piece != this.activePiece) {
+              this.context.drawImage(this.imageElement.nativeElement, 
+                piece.sx, piece.sy, this.jigsaw.imagePieceWidth, this.jigsaw.imagePieceHeight,
+                piece.dx, piece.dy, this.jigsaw.pieceWidth, this.jigsaw.pieceHeight);
+            }
+          }); 
+      }
+
+      this.activePiece = null;
+    }
+  }
+
+  isMouseOverPiece(piece: Piece, x: number, y: number) {
+    if (x >= piece.dx && x <= piece.dx + this.jigsaw.pieceWidth 
+      && y >= piece.dy && y <= piece.dy + this.jigsaw.pieceHeight) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isPieceInDefaultPosition(piece: Piece, x: number, y: number) {
+    const defaultPosition = this.jigsaw.getDefaultPositionOfPiece(piece);
+    const offset = { x: this.jigsaw.pieceWidth / 4, y: this.jigsaw.pieceHeight / 4 };
+
+    if (x >= defaultPosition.x + offset.x && x <= defaultPosition.x + this.jigsaw.pieceWidth - offset.x
+      && y >= defaultPosition.y + offset.x && y <= defaultPosition.y + this.jigsaw.pieceHeight - offset.y) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

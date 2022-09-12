@@ -5,6 +5,7 @@ export class Piece {
   sy: number;
   dx: number;
   dy: number;
+  locked = false;
 
   constructor(
     row: number, 

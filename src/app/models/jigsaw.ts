@@ -47,12 +47,19 @@ export class Jigsaw {
     this.pieces.push(piece);
   }
 
-  putPieceOnTop(piece: Piece) {
+  movePieceToTop(piece: Piece) {
     const index = this.pieces.indexOf(piece);
 
     if (index >= 0) {
       this.pieces.splice(index, 1);
       this.addPiece(piece);
     }
+  }
+
+  getDefaultPositionOfPiece(piece: Piece) {
+    return {
+      x: this.x + piece.col * this.pieceWidth,
+      y: this.y + piece.row * this.pieceHeight
+    };
   }
 }
