@@ -10,7 +10,7 @@ export class Jigsaw {
   private _scale: number;
   private _ratio: number;
 
-  private _pieces: Piece[];
+  private _pieces: Piece[] = [];
   private _sourcePieceSize: Size;
   private _destPieceSize: Size;
 
@@ -34,7 +34,6 @@ export class Jigsaw {
       (canvasHeight - this._size.height) / 2
     );
 
-    this._pieces = [];
     this._sourcePieceSize = new Size(imageWidth / cols, imageHeight / rows);
     this._destPieceSize = new Size(this._size.width / cols, this._size.height / rows);
 
@@ -69,15 +68,15 @@ export class Jigsaw {
   }
 
   public addPiece(piece: Piece) {
-    this.pieces.push(piece);
+    this._pieces.push(piece);
   }
 
   public movePieceToTop(piece: Piece) {
     const index = this.pieces.indexOf(piece);
 
     if (index >= 0) {
-      this.pieces.splice(index, 1);
-      this.pieces.push(piece);
+      this._pieces.splice(index, 1);
+      this._pieces.push(piece);
     }
   }
 
@@ -85,32 +84,12 @@ export class Jigsaw {
     const index = this.pieces.indexOf(piece);
 
     if (index >= 0) {
-      this.pieces.splice(index, 1);
-      this.pieces.unshift(piece);
+      this._pieces.splice(index, 1);
+      this._pieces.unshift(piece);
     }
   }
 
   public getPiece(row: number, col: number) {
     return this.pieces.filter(piece => piece.row == row && piece.col == col)[0];
-  }
-
-  public getDefaultPositionOfPiece(piece: Piece) {
-    return new Coordinates(
-      this.position.x + piece.col * this.destPieceSize.width, 
-      this.position.y + piece.row * this.destPieceSize.height
-    );
-  }
-
-  public getRelativePositionOfPiece(piece: Piece, basePiece: Piece) {
-    const basePieceDefaultPosition = this.getDefaultPositionOfPiece(basePiece);
-    const vector = new Coordinates(
-      basePiece.dx - basePieceDefaultPosition.x, 
-      basePiece.dy - basePieceDefaultPosition.y 
-    );
-
-    const piecePosition = this.getDefaultPositionOfPiece(piece);
-    piecePosition.addVector(vector);
-
-    return piecePosition;
   }
 }

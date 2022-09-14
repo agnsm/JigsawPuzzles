@@ -11,20 +11,12 @@ export class Coordinates {
     return this._x;
   }
 
-  public set x(value: number) {
-    this._x = value;
-  }
-
   public get y() {
     return this._y;
   }
 
-  public set y(value: number) {
-    this._y = value;
-  }
-
   public addVector(vector: Coordinates) {
-    this.x += vector.x;
-    this.y += vector.y;
+    this._x += vector.x;
+    this._y += vector.y;
   }
 }

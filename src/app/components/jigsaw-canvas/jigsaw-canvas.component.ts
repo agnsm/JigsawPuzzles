@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Canvas } from 'src/app/models/canvas';
+import { Coordinates } from 'src/app/models/coordinates';
 import { Jigsaw } from 'src/app/models/jigsaw';
 import { Piece } from 'src/app/models/piece';
 
@@ -19,6 +20,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
 
   activePiece: Piece | null = null;
 
+  size = { rows: 7, cols: 10 };
   scale = { canvas: 1.5, jigsaw: 0.75 };
   alpha = 0.4;
 
@@ -69,7 +71,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
 
   initializeJigsaw() {
     this.jigsaw = new Jigsaw(
-      4, 4, 
+      this.size.rows, this.size.cols, 
       this.imageElement.nativeElement.width, 
       this.imageElement.nativeElement.height, 
       innerWidth, innerHeight, this.scale.jigsaw
@@ -107,25 +109,48 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   prepareJigsaw() {
     for (let row = 0; row < this.jigsaw.size.rows; row++) {
       for (let col = 0; col < this.jigsaw.size.cols; col++) {
-        const id = row * this.jigsaw.size.cols + col + 1;
-        const sx = this.jigsaw.sourcePieceSize.width * col;
-        const sy = this.jigsaw.sourcePieceSize.height * row;
-        const dx = Math.random() * (innerWidth - this.jigsaw.destPieceSize.width);
-        const dy = Math.random() * (innerHeight - this.jigsaw.destPieceSize.height);
-
-        const piece: Piece = new Piece(id, row, col, sx, sy, dx, dy);
-        this.jigsaw.addPiece(piece);
+        const piece = this.createPiece(row, col);        
         this.drawPiece(piece);
       }
     }
   }
 
+  createPiece(row: number, col: number) {
+    const sourceX = this.jigsaw.sourcePieceSize.width * col;
+    const sourceY = this.jigsaw.sourcePieceSize.height * row;
+    const destX = Math.random() * (innerWidth - this.jigsaw.destPieceSize.width);
+    const destY = Math.random() * (innerHeight - this.jigsaw.destPieceSize.height);
+    const targetX = this.jigsaw.position.x + col * this.jigsaw.destPieceSize.width;
+    const targetY = this.jigsaw.position.y + row * this.jigsaw.destPieceSize.height;
+
+    const piece = new Piece(
+      row, col, 
+      sourceX, sourceY, 
+      destX, destY, 
+      targetX, targetY
+    );
+    
+    this.jigsaw.addPiece(piece);
+
+    return piece;
+  }
+
   drawPiece(piece: Piece) {
     this.context.drawImage(
       this.imageElement.nativeElement, 
-      piece.sx, piece.sy, this.jigsaw.sourcePieceSize.width, this.jigsaw.sourcePieceSize.height,
-      piece.dx, piece.dy, this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
+      piece.sourcePosition.x, piece.sourcePosition.y, 
+      this.jigsaw.sourcePieceSize.width, this.jigsaw.sourcePieceSize.height,
+      piece.destPosition.x, piece.destPosition.y, 
+      this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
     );
+  }
+
+  drawJigsaw() {
+    this.resetCanvasState();
+
+    this.jigsaw.pieces.forEach(piece => {
+      this.drawPiece(piece);
+    });
   }
 
   pickUpPiece(event: MouseEvent) {
@@ -139,123 +164,115 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   dragPiece(event: MouseEvent) {
-    if (this.activePiece) {
-      this.resetCanvasState();
+    if (!this.activePiece) return;
+    
+    const adjacentPieces = this.getGroupOfAdjacentPieces(this.activePiece)
+    const newPosition = this.calculateActivePiecePosition(event);
+    const vector = this.calculateVector(event, this.activePiece.destPosition);
 
-      const adjacentPieces = this.getGroupOfAdjacentPieces(this.activePiece);
+    adjacentPieces.forEach(piece => {
+      this.jigsaw.movePieceToTop(piece);
 
-      this.jigsaw.pieces.forEach(piece => {
-        if (!adjacentPieces.includes(piece)) {
-          this.drawPiece(piece);
-        }
-      }); 
-
-      const newPosition = {
-        x: event.pageX - this.jigsaw.destPieceSize.width / 2,
-        y: event.pageY - this.jigsaw.destPieceSize.height / 2,
+      if (piece != this.activePiece) {
+        piece.setPositionBasedOnVector(vector);
+      } else {
+        piece.setPosition(newPosition);
       }
+    });
 
-      const vector = {
-        x: newPosition.x - this.activePiece.dx,
-        y: newPosition.y - this.activePiece.dy
-      }
-
-      this.activePiece.setPosition(newPosition.x, newPosition.y);
-      this.jigsaw.movePieceToTop(this.activePiece);
-      this.drawPiece(this.activePiece);
-
-      adjacentPieces.forEach(piece => {
-        if (piece != this.activePiece) {
-          piece.setPosition(piece.dx + vector.x, piece.dy + vector.y);
-          this.jigsaw.movePieceToTop(piece);
-          this.drawPiece(piece);
-        }
-      });
-    }
+    this.drawJigsaw();
   }
 
   dropPiece(event: MouseEvent) {
-    if (this.activePiece) {
-      const adjacentPieces = this.getGroupOfAdjacentPieces(this.activePiece);
+    if (!this.activePiece) return;
 
-      if (this.isPieceInDefaultPosition(this.activePiece, event.pageX, event.pageY)) {
-        this.resetCanvasState();
+    const adjacentPieces = this.getGroupOfAdjacentPieces(this.activePiece);
 
+    if (this.isPieceInTargetPosition(this.activePiece, event.pageX, event.pageY)) {
+      adjacentPieces.forEach(piece => {
+        this.jigsaw.movePieceToBottom(piece);
+        piece.setPositionToTarget();
+        piece.lock();
+      });
+
+      this.drawJigsaw(); 
+    } else {
+      const connector = this.findConnectionsBetweenPieces(adjacentPieces);
+
+      if (connector) {
         adjacentPieces.forEach(piece => {
-          const defaultPosition = this.jigsaw.getDefaultPositionOfPiece(piece);
-          piece.setPosition(defaultPosition.x, defaultPosition.y);
-          this.jigsaw.movePieceToBottom(piece);
-          piece.locked = true;
-        });
-  
-        this.jigsaw.pieces.forEach(piece => {
-          this.drawPiece(piece);
-        }); 
-      } else {
-        let connector: Piece | null = null;
-
-        adjacentPieces.forEach(piece => {
-          let result = this.connectPiece(piece);
-          if (result) {
-            connector = result;
-          }
+          this.jigsaw.movePieceToTop(piece);
+          piece.setPositionBasedOnReferencePiece(connector);
         });
 
-        if (connector) {
-          this.resetCanvasState();
-
-          adjacentPieces.forEach(piece => {
-            const relativePosition = this.jigsaw.getRelativePositionOfPiece(piece, connector!);
-            piece.setPosition(relativePosition.x, relativePosition.y);
-            this.jigsaw.movePieceToTop(piece);
-          });
-
-          this.jigsaw.pieces.forEach(piece => {
-            this.drawPiece(piece);
-          });
-        }
+        this.drawJigsaw();
       }
-
-      this.activePiece = null;
     }
+
+    this.activePiece = null;
   }
 
-  getGroupOfAdjacentPieces(activePiece: Piece, allAdjacentPieces: Piece[] = []) {
-    const adjacentPieces = activePiece.connections
+  getGroupOfAdjacentPieces(piece: Piece, allAdjacentPieces: Piece[] = []) {
+    const adjacentPieces = piece.connections
       .filter(connection => connection.connected)
       .map(connection => this.jigsaw.getPiece(connection.row, connection.col));
 
-    allAdjacentPieces.push(activePiece);
+    allAdjacentPieces.push(piece);
 
-    adjacentPieces.forEach(piece => {
-      if (!allAdjacentPieces.includes(piece)) {
-        this.getGroupOfAdjacentPieces(piece, allAdjacentPieces);
+    adjacentPieces.forEach(adjacentPiece => {
+      if (!allAdjacentPieces.includes(adjacentPiece)) {
+        this.getGroupOfAdjacentPieces(adjacentPiece, allAdjacentPieces);
       }
     });
 
     return allAdjacentPieces;
   }
 
+  calculateActivePiecePosition(event: MouseEvent) {
+    return new Coordinates(
+      event.pageX - this.jigsaw.destPieceSize.width / 2, 
+      event.pageY - this.jigsaw.destPieceSize.height / 2
+    );
+  }
+
+  calculateVector(event: MouseEvent, currentPosition: Coordinates) {
+    return new Coordinates(
+      event.pageX - this.jigsaw.destPieceSize.width / 2 - currentPosition.x,
+      event.pageY - this.jigsaw.destPieceSize.height / 2 - currentPosition.y
+    );
+  }
+
   isMouseOverPiece(piece: Piece, x: number, y: number) {
-    if (x >= piece.dx && x <= piece.dx + this.jigsaw.destPieceSize.width 
-      && y >= piece.dy && y <= piece.dy + this.jigsaw.destPieceSize.height) {
+    if (x >= piece.destPosition.x && x <= piece.destPosition.x + this.jigsaw.destPieceSize.width 
+      && y >= piece.destPosition.y && y <= piece.destPosition.y + this.jigsaw.destPieceSize.height) {
       return true;
     } else {
       return false;
     }
   }
 
-  isPieceInDefaultPosition(piece: Piece, x: number, y: number) {
-    const defaultPosition = this.jigsaw.getDefaultPositionOfPiece(piece);
-
-    if (x >= defaultPosition.x + this.jigsaw.offset.x 
-      && x <= defaultPosition.x + this.jigsaw.destPieceSize.width - this.jigsaw.offset.x
-      && y >= defaultPosition.y + this.jigsaw.offset.x 
-      && y <= defaultPosition.y + this.jigsaw.destPieceSize.height - this.jigsaw.offset.y) {
+  isPieceInTargetPosition(piece: Piece, x: number, y: number) {
+    if (x >= piece.targetPosition.x + this.jigsaw.offset.x 
+      && x <= piece.targetPosition.x + this.jigsaw.destPieceSize.width - this.jigsaw.offset.x
+      && y >= piece.targetPosition.y + this.jigsaw.offset.x 
+      && y <= piece.targetPosition.y + this.jigsaw.destPieceSize.height - this.jigsaw.offset.y) {
       return true;
     } else {
       return false;
     }
+  }
+
+  findConnectionsBetweenPieces(adjacentPieces: Piece[]) {
+    let connector: Piece | null = null;
+
+    adjacentPieces.forEach(piece => {
+      let result = this.connectPiece(piece);
+      if (result) {
+        connector = result;
+      }
+    });
+
+    return connector;
   }
 
   connectPiece(piece: Piece) {
@@ -265,52 +282,53 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       const connection = piece.connections[i];
       const adjacentPiece = this.jigsaw.getPiece(connection.row, connection.col);
 
-      if (adjacentPiece && !connection.connected) {
-        switch (connection.direction) {
-          case 'left':
-            if (this.canBeConnectedOnLeft(piece, adjacentPiece)) {
-              piece.setConnection('left');
-              adjacentPiece.setConnection('right');
-              connector = adjacentPiece;
-            }
-            break;
+      if (!adjacentPiece || connection.connected) continue;
 
-          case 'right':
-            if (this.canBeConnectedOnRight(piece, adjacentPiece)) {
-              piece.setConnection('right');
-              adjacentPiece.setConnection('left');
-              connector = adjacentPiece;
-            }
-            break;
+      switch (connection.direction) {
+        case 'left':
+          if (this.canBeConnectedOnLeft(piece, adjacentPiece)) {
+            piece.setConnection('left');
+            adjacentPiece.setConnection('right');
+            connector = adjacentPiece;
+          }
+          break;
 
-          case 'top':
-            if (this.canBeConnectedOnTop(piece, adjacentPiece)) {
-              piece.setConnection('top');
-              adjacentPiece.setConnection('bottom');
-              connector = adjacentPiece;
-            }
-            break;
+        case 'right':
+          if (this.canBeConnectedOnRight(piece, adjacentPiece)) {
+            piece.setConnection('right');
+            adjacentPiece.setConnection('left');
+            connector = adjacentPiece;
+          }
+          break;
 
-          case 'bottom':
-            if (this.canBeConnectedOnBottom(piece, adjacentPiece)) {
-              piece.setConnection('bottom');
-              adjacentPiece.setConnection('top');
-              connector = adjacentPiece;
-            }
-            break;
-        
-          default:
-            break;
-        }
+        case 'top':
+          if (this.canBeConnectedOnTop(piece, adjacentPiece)) {
+            piece.setConnection('top');
+            adjacentPiece.setConnection('bottom');
+            connector = adjacentPiece;
+          }
+          break;
+
+        case 'bottom':
+          if (this.canBeConnectedOnBottom(piece, adjacentPiece)) {
+            piece.setConnection('bottom');
+            adjacentPiece.setConnection('top');
+            connector = adjacentPiece;
+          }
+          break;
+      
+        default:
+          break;
       }
-    };
+    }
 
     return connector;
   }
 
   canBeConnectedOnLeft(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(adjacentPiece.dx + this.jigsaw.destPieceSize.width - piece.dx) <= this.jigsaw.offset.x
-      && Math.abs(adjacentPiece.dy - piece.dy) <= this.jigsaw.offset.y) {
+    if (Math.abs(adjacentPiece.destPosition.x + this.jigsaw.destPieceSize.width - piece.destPosition.x) 
+      <= this.jigsaw.offset.x
+      && Math.abs(adjacentPiece.destPosition.y - piece.destPosition.y) <= this.jigsaw.offset.y) {
       return true;
     } else {
       return false;
@@ -318,8 +336,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   canBeConnectedOnRight(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(piece.dx + this.jigsaw.destPieceSize.width - adjacentPiece.dx) <= this.jigsaw.offset.x
-      && Math.abs(adjacentPiece.dy - piece.dy) <= this.jigsaw.offset.y) {
+    if (Math.abs(piece.destPosition.x + this.jigsaw.destPieceSize.width - adjacentPiece.destPosition.x) 
+      <= this.jigsaw.offset.x
+      && Math.abs(adjacentPiece.destPosition.y - piece.destPosition.y) <= this.jigsaw.offset.y) {
       return true;
     } else {
       return false;
@@ -327,8 +346,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   canBeConnectedOnTop(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(adjacentPiece.dy + this.jigsaw.destPieceSize.height - piece.dy) <= this.jigsaw.offset.y
-      && Math.abs(adjacentPiece.dx - piece.dx) <= this.jigsaw.offset.x) {
+    if (Math.abs(adjacentPiece.destPosition.y + this.jigsaw.destPieceSize.height - piece.destPosition.y)
+      <= this.jigsaw.offset.y
+      && Math.abs(adjacentPiece.destPosition.x - piece.destPosition.x) <= this.jigsaw.offset.x) {
       return true;
     } else {
       return false;
@@ -336,8 +356,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   canBeConnectedOnBottom(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(piece.dy + this.jigsaw.destPieceSize.height - adjacentPiece.dy) <= this.jigsaw.offset.y
-      && Math.abs(adjacentPiece.dx - piece.dx) <= this.jigsaw.offset.x) {
+    if (Math.abs(piece.destPosition.y + this.jigsaw.destPieceSize.height - adjacentPiece.destPosition.y) 
+      <= this.jigsaw.offset.y
+      && Math.abs(adjacentPiece.destPosition.x - piece.destPosition.x) <= this.jigsaw.offset.x) {
       return true;
     } else {
       return false;
