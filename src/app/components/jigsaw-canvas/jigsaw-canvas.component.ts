@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Canvas } from 'src/app/models/canvas';
 import { Jigsaw } from 'src/app/models/jigsaw';
 import { Piece } from 'src/app/models/piece';
@@ -18,6 +18,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   jigsaw!: Jigsaw;
 
   activePiece: Piece | null = null;
+
+  scale = {
+    canvas: 1.5
+  };
 
   constructor() { }
 
@@ -52,12 +56,16 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   initializeCanvas() {
-    this.canvas = new Canvas(1.5 * innerWidth, 1.5 * innerHeight);
+    this.canvas = new Canvas(
+      innerWidth, innerHeight, 
+      0, 0, 
+      this.scale.canvas
+    );
   }
 
   setCanvasElementSize() {
-    this.canvasElement.nativeElement.width = this.canvas.width;
-    this.canvasElement.nativeElement.height = this.canvas.height;
+    this.canvasElement.nativeElement.width = this.canvas.size.width;
+    this.canvasElement.nativeElement.height = this.canvas.size.height;
   }
 
   initializeJigsaw() {
@@ -70,7 +78,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   clearCanvas() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.clearRect(
+      this.canvas.position.x, this.canvas.position.y, 
+      this.canvas.size.width, this.canvas.size.height
+    );
   }
 
   displayBoundaries() {
