@@ -1,12 +1,12 @@
 import { TabularSize } from "./tabularSize";
 import { Piece } from "./piece";
-import { Position } from "./position";
 import { Size } from "./size";
+import { Coordinates } from "./coordinates";
 
 export class Jigsaw {
   private _size: TabularSize;
-  private _position: Position;//zmienic klase na coordinates
-  private _offset: Position;
+  private _position: Coordinates;
+  private _offset: Coordinates;
   private _scale: number;
   private _ratio: number;
 
@@ -29,7 +29,7 @@ export class Jigsaw {
       rows, cols
     );
 
-    this._position = new Position(
+    this._position = new Coordinates(
       (canvasWidth - this._size.width) / 2, 
       (canvasHeight - this._size.height) / 2
     );
@@ -38,7 +38,7 @@ export class Jigsaw {
     this._sourcePieceSize = new Size(imageWidth / cols, imageHeight / rows);
     this._destPieceSize = new Size(this._size.width / cols, this._size.height / rows);
 
-    this._offset = new Position(
+    this._offset = new Coordinates(
       this._destPieceSize.width / 4,
       this._destPieceSize.height / 4
     );
@@ -95,23 +95,22 @@ export class Jigsaw {
   }
 
   public getDefaultPositionOfPiece(piece: Piece) {
-    return {
-      x: this.position.x + piece.col * this.destPieceSize.width,
-      y: this.position.y + piece.row * this.destPieceSize.height
-    };
+    return new Coordinates(
+      this.position.x + piece.col * this.destPieceSize.width, 
+      this.position.y + piece.row * this.destPieceSize.height
+    );
   }
 
   public getRelativePositionOfPiece(piece: Piece, basePiece: Piece) {
     const basePieceDefaultPosition = this.getDefaultPositionOfPiece(basePiece);
-    const pieceDefaultPosition = this.getDefaultPositionOfPiece(piece);
-    const vector = { 
-      x: basePiece.dx - basePieceDefaultPosition.x, 
-      y: basePiece.dy - basePieceDefaultPosition.y 
-    };
+    const vector = new Coordinates(
+      basePiece.dx - basePieceDefaultPosition.x, 
+      basePiece.dy - basePieceDefaultPosition.y 
+    );
 
-    return {
-      x: pieceDefaultPosition.x + vector.x,
-      y: pieceDefaultPosition.y + vector.y
-    };
+    const piecePosition = this.getDefaultPositionOfPiece(piece);
+    piecePosition.addVector(vector);
+
+    return piecePosition;
   }
 }
