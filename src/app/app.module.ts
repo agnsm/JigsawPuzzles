@@ -3,11 +3,15 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { JigsawCanvasComponent } from './components/jigsaw-canvas/jigsaw-canvas.component';
+import { GameComponent } from './components/game/game/game.component';
+import { JigsawCanvasComponent } from './components/game/jigsaw-canvas/jigsaw-canvas.component';
+import { NewGameComponent } from './components/new-game/new-game.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    NewGameComponent,
+    GameComponent,
     JigsawCanvasComponent
   ],
   imports: [
