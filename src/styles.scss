@@ -41,7 +41,17 @@ $JigsawPuzzles-theme: mat.define-light-theme((
 html, body { 
   height: 100%; 
 }
+
 body { 
   margin: 0; 
   font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+.radio-button {
+  margin: 5px;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
 }

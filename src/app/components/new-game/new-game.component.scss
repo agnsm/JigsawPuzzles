@@ -1,0 +1,16 @@
+.new-game-form {
+  padding: 25px;
+}
+
+.file-input {
+  background: green;
+
+  input[type=file] {
+    position: absolute;
+    opacity: 0;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}

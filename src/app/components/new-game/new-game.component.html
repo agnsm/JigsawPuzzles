@@ -1,0 +1,20 @@
+<form [formGroup]="newGameForm" (ngSubmit)="startGame()" class="new-game-form">
+  <div class="file-input">
+    Wybierz obraz
+    <input type="file" (change)="onFileSelected($event)">
+  </div>
+
+  <ng-container *ngIf="newGameForm.controls['image'].value">
+    <label>Liczba puzzli</label>
+    <mat-radio-group formControlName="numberOfPieces" class="radio-group">
+      <mat-radio-button class="radio-button"
+        *ngFor="let option of sizing; let i = index" 
+        [value]="option.numberOfPieces" 
+        (change)="updateRowsAndCols(i)">
+        {{option.numberOfPieces}}
+      </mat-radio-button>
+    </mat-radio-group>
+  </ng-container>
+
+  <button type="submit" *ngIf="newGameForm.valid">GRAJ</button>
+</form>
