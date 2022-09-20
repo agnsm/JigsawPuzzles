@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Canvas } from 'src/app/models/canvas';
 import { Coordinates } from 'src/app/models/coordinates';
+import { GameSettings } from 'src/app/models/gameSettings';
 import { Jigsaw } from 'src/app/models/jigsaw';
 import { Piece } from 'src/app/models/piece';
 
@@ -12,6 +13,7 @@ import { Piece } from 'src/app/models/piece';
 export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   @ViewChild('canvas') canvasElement!: ElementRef<HTMLCanvasElement>;
   @ViewChild('image') imageElement!: ElementRef<HTMLImageElement>;
+  @Input() gameSettings!: GameSettings;
 
   context!: CanvasRenderingContext2D;
 
@@ -20,7 +22,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
 
   activePiece: Piece | null = null;
 
-  size = { rows: 7, cols: 10 };
   scale = { canvas: 1.5, jigsaw: 0.75 };
   alpha = 0.4;
 
@@ -30,14 +31,19 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.initializeContext();
+    this.initializeContext();
+    this.initializeImageElement();
 
+    setTimeout(() => {
       this.adjustCanvas();
       this.resetCanvasState();
 
       this.prepareJigsaw();
-    }, 1000);
+    }, 500);
+  }
+
+  initializeImageElement() {
+    this.imageElement.nativeElement.src = URL.createObjectURL(this.gameSettings.image);
   }
 
   initializeContext() {
@@ -71,7 +77,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
 
   initializeJigsaw() {
     this.jigsaw = new Jigsaw(
-      this.size.rows, this.size.cols, 
+      this.gameSettings.rows, this.gameSettings.cols, 
       this.imageElement.nativeElement.width, 
       this.imageElement.nativeElement.height, 
       innerWidth, innerHeight, this.scale.jigsaw
@@ -200,6 +206,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
       const connector = this.findConnectionsBetweenPieces(adjacentPieces);
 
       if (connector) {
+        this.jigsaw.movePieceToTop(connector);
+
         adjacentPieces.forEach(piece => {
           this.jigsaw.movePieceToTop(piece);
           piece.setPositionBasedOnReferencePiece(connector);
