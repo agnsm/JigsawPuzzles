@@ -8,6 +8,14 @@
       <div class="file-input" [ngClass]="{selected: gameSettingsForm.controls['image'].value}">
         <fa-icon [icon]="faUpload"></fa-icon>
         <input type="file" accept="image/*" (change)="onFileSelected($event)">
+        <span *ngIf="gameSettingsForm.controls['image'].value" class="file-name">
+          <ng-container *ngIf="gameSettingsForm.controls['image'].value.name.length <= 17">
+            {{gameSettingsForm.controls['image'].value.name}}
+          </ng-container>
+          <ng-container *ngIf="gameSettingsForm.controls['image'].value.name.length > 17">
+            {{gameSettingsForm.controls['image'].value.name | slice:0:15}}...
+          </ng-container>
+        </span>
       </div>
     </div>
   

@@ -44,9 +44,22 @@
       margin-left: 25px;
     }
   }
+
+  input[type=file], input[type=radio] {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
 }
 
 .file-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
   font-size: 5rem;
   color: #1a1c27;
@@ -60,16 +73,10 @@
     color: #cf8030;
     background-position: 0 -100%;
   }
+}
 
-  input[type=file] {
-    height: 100%;
-    width: 128px;
-    position: absolute;
-    top: 0;
-    left: calc((100% - 128px) / 2);
-    opacity: 0;
-    cursor: pointer;
-  }
+.file-name {
+  font-size: 0.7rem;
 }
 
 .radio-group {
@@ -95,16 +102,6 @@
   &:hover {
     color: #cf8030;
     background-position: 0 -100%;
-  }
-
-  input[type=radio] {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    cursor: pointer;
   }
 }
 
