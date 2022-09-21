@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatRadioModule } from '@angular/material/radio';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -23,8 +22,7 @@ import { NewGameComponent } from './components/new-game/new-game.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
-    FontAwesomeModule,
-    MatRadioModule
+    FontAwesomeModule
   ],
   providers: [],
   bootstrap: [AppComponent]

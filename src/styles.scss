@@ -1,24 +1,43 @@
-// Custom Theming for Angular Material
-// For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
-// Plus imports for other components in your app.
-
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
 @include mat.core();
 
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$JigsawPuzzles-primary: mat.define-palette(mat.$indigo-palette);
-$JigsawPuzzles-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$primary-pallete: (
+  50 : #f9f0e6,
+  100 : #f1d9c1,
+  200 : #e7c098,
+  300 : #dda66e,
+  400 : #d6934f,
+  500 : #cf8030,
+  600 : #ca782b,
+  700 : #c36d24,
+  800 : #bd631e,
+  900 : #b25013,
+  A100 : #ffede3,
+  A200 : #ffcbb0,
+  A400 : #ffaa7d,
+  A700 : #ff9963,
+  contrast: (
+    50 : #1a1c27,
+    100 : #1a1c27,
+    200 : #1a1c27,
+    300 : #1a1c27,
+    400 : #1a1c27,
+    500 : #1a1c27,
+    600 : #1a1c27,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #1a1c27,
+    A200 : #1a1c27,
+    A400 : #1a1c27,
+    A700 : #1a1c27,
+  )
+);
 
-// The warn palette is optional (defaults to red).
-$JigsawPuzzles-warn: mat.define-palette(mat.$red-palette);
+$JigsawPuzzles-primary: mat.define-palette($primary-pallete);
+$JigsawPuzzles-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400); //to do
+$JigsawPuzzles-warn: mat.define-palette(mat.$red-palette); //to do
 
-// Create the theme object. A theme consists of configurations for individual
-// theming systems such as "color" or "typography".
 $JigsawPuzzles-theme: mat.define-light-theme((
   color: (
     primary: $JigsawPuzzles-primary,
@@ -27,9 +46,6 @@ $JigsawPuzzles-theme: mat.define-light-theme((
   )
 ));
 
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
 @include mat.all-component-themes($JigsawPuzzles-theme);
 
 *, *::before, *::after {
@@ -45,13 +61,4 @@ html, body {
 body { 
   margin: 0; 
   font-family: Roboto, "Helvetica Neue", sans-serif; 
-}
-
-.radio-button {
-  margin: 5px;
-}
-
-.radio-group {
-  display: flex;
-  flex-direction: column;
 }
