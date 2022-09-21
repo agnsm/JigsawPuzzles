@@ -1,20 +1,39 @@
-<form [formGroup]="gameSettingsForm" (ngSubmit)="startGame()" class="new-game-form">
-  <div class="file-input">
-    Wybierz obraz
-    <input type="file" accept="image/*" (change)="onFileSelected($event)">
-  </div>
+<div class="new-game-container">
+  <form [formGroup]="gameSettingsForm" (ngSubmit)="startGame()" class="new-game-form">
+    <div class="form-control-wrapper">
+      <label class="step">
+        <span class="number">1</span>
+        <span class="text">Wgraj swój obrazek</span>
+      </label>
+      <div class="file-input" [ngClass]="{selected: gameSettingsForm.controls['image'].value}">
+        <fa-icon [icon]="faUpload"></fa-icon>
+        <input type="file" accept="image/*" (change)="onFileSelected($event)">
+      </div>
+    </div>
+  
+    <div *ngIf="gameSettingsForm.controls['image'].value" class="form-control-wrapper">
+      <label class="step">
+        <span class="number">2</span>
+        <span class="text">Wybierz liczbę puzzli</span>
+      </label>
+      <div class="radio-group">
+        <div *ngFor="let option of sizing; let i = index" class="radio-button" 
+          [ngClass]="{selected: gameSettingsForm.controls['pieces'].value == option.pieces}">
+          <label [for]="option.pieces">{{option.pieces}}</label>
+          <input type="radio" [id]="option.pieces" formControlName="pieces"
+            [value]="option.pieces" (change)="updateRowsAndCols(i)">
+        </div>
+      </div>
+    </div>
 
-  <ng-container *ngIf="gameSettingsForm.controls['image'].value">
-    <label>Liczba puzzli</label>
-    <mat-radio-group formControlName="pieces" class="radio-group">
-      <mat-radio-button class="radio-button"
-        *ngFor="let option of sizing; let i = index" 
-        [value]="option.pieces" 
-        (change)="updateRowsAndCols(i)">
-        {{option.pieces}}
-      </mat-radio-button>
-    </mat-radio-group>
-  </ng-container>
-
-  <button type="submit" *ngIf="gameSettingsForm.valid">GRAJ</button>
-</form>
+    <div *ngIf="gameSettingsForm.valid" class="form-control-wrapper">
+      <label class="step">
+        <span class="number">3</span>
+        <span class="text">Zacznij układać</span>
+      </label>
+      <button type="submit" class="start">
+        <fa-icon [icon]="faPuzzlePiece"></fa-icon>
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { take } from 'rxjs';
+import { faPuzzlePiece, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
@@ -27,6 +27,9 @@ export class NewGameComponent implements OnInit {
     { pieces: 204, rows: 12, cols: 17 },
     { pieces: 320, rows: 16, cols: 20 }
   ];
+
+  faUpload = faUpload;
+  faPuzzlePiece = faPuzzlePiece;
 
   constructor(private gameService: GameService, private fb: FormBuilder, private router: Router) { }
 
