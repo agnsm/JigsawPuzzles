@@ -2,10 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faPuzzlePiece, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
   selector: 'app-new-game',
+  animations: [fadeEnterAnimation, fadeLeaveAnimation],
   templateUrl: './new-game.component.html',
   styleUrls: ['./new-game.component.scss']
 })

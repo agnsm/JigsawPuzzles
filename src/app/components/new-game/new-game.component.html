@@ -1,6 +1,6 @@
 <div class="new-game-container">
   <form [formGroup]="gameSettingsForm" (ngSubmit)="startGame()" class="new-game-form">
-    <div class="form-control-wrapper">
+    <div @fadeEnterAnimation class="form-control-wrapper">
       <label class="step">
         <span class="number">1</span>
         <span class="text">Wgraj swój obrazek</span>
@@ -11,7 +11,7 @@
       </div>
     </div>
   
-    <div *ngIf="gameSettingsForm.controls['image'].value" class="form-control-wrapper">
+    <div @fadeEnterAnimation *ngIf="gameSettingsForm.controls['image'].value" class="form-control-wrapper">
       <label class="step">
         <span class="number">2</span>
         <span class="text">Wybierz liczbę puzzli</span>
@@ -26,7 +26,8 @@
       </div>
     </div>
 
-    <div *ngIf="gameSettingsForm.valid" class="form-control-wrapper">
+    <div @fadeEnterAnimation @fadeLeaveAnimation 
+      *ngIf="gameSettingsForm.valid" class="form-control-wrapper">
       <label class="step">
         <span class="number">3</span>
         <span class="text">Zacznij układać</span>
