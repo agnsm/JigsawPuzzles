@@ -71,14 +71,18 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(26, 28, 39, 0.25);
+  background: rgba(26, 28, 39, 0.8);
 }
  
 ::-webkit-scrollbar-thumb {
   background: rgba(26, 28, 39, 1);
-  // border-radius: 25px;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(207, 128, 48, 1)
+  background: rgba(207, 128, 48, 0.8)
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(26, 28, 39, 0.8);
 }
