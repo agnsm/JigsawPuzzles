@@ -130,6 +130,20 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.canvas.position.x, this.canvas.position.y, 
       this.canvas.size.width, this.canvas.size.height
     );
+
+    const gradient = this.context.createLinearGradient(
+      this.canvas.position.x, this.canvas.position.y, 
+      this.canvas.position.x, this.canvas.position.y + this.canvas.size.height
+    );
+
+    gradient.addColorStop(0, 'rgba(207, 128, 48, 0.5)');
+    gradient.addColorStop(1, 'rgba(26, 28, 39, 0.8)');
+
+    this.context.fillStyle = gradient;
+    this.context.fillRect(
+      this.canvas.position.x, this.canvas.position.y, 
+      this.canvas.size.width, this.canvas.size.height
+    );
   }
 
   displayBoundaries() {
@@ -212,6 +226,11 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.imageElement.nativeElement, 
       piece.sourcePosition.x, piece.sourcePosition.y, 
       this.jigsaw.sourcePieceSize.width, this.jigsaw.sourcePieceSize.height,
+      piece.destPosition.x, piece.destPosition.y, 
+      this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
+    );
+
+    this.context.strokeRect(
       piece.destPosition.x, piece.destPosition.y, 
       this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
     );
