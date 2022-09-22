@@ -110,7 +110,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   manageFullscreen() {
     if (this.boardSettings.fullscreen) {
       document.documentElement.requestFullscreen();
-    } else {
+    } else if (document.fullscreenElement) {
       document.exitFullscreen();
     }
   }
@@ -157,7 +157,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   createPiece(row: number, col: number) {
     const sourceX = this.jigsaw.sourcePieceSize.width * col;
     const sourceY = this.jigsaw.sourcePieceSize.height * row;
-    const destX = Math.random() * (innerWidth - this.jigsaw.destPieceSize.width) + 60; //
+    const destX = Math.random() * (innerWidth - this.jigsaw.destPieceSize.width);
     const destY = Math.random() * (innerHeight - this.jigsaw.destPieceSize.height);
     const targetX = this.jigsaw.position.x + col * this.jigsaw.destPieceSize.width;
     const targetY = this.jigsaw.position.y + row * this.jigsaw.destPieceSize.height;
@@ -196,7 +196,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     for (let i = this.jigsaw.pieces.length - 1; i >= 0 && !this.activePiece; i--) {
       const piece = this.jigsaw.pieces[i];
 
-      if (!piece.locked && this.isMouseOverPiece(piece, event.pageX, event.pageY)) {
+      if (!piece.locked && this.isMouseOverPiece(piece, event)) {
         this.activePiece = piece;
       }
     }
@@ -227,7 +227,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const adjacentPieces = this.getGroupOfAdjacentPieces(this.activePiece);
 
-    if (this.isPieceInTargetPosition(this.activePiece, event.pageX, event.pageY)) {
+    if (this.isPieceInTargetPosition(this.activePiece, event)) {
       adjacentPieces.forEach(piece => {
         this.jigsaw.movePieceToBottom(piece);
         piece.setPositionToTarget();
@@ -269,34 +269,51 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     return allAdjacentPieces;
   }
 
+  getMousePosition(event: MouseEvent) {
+    const rect = this.canvasElement.nativeElement.getBoundingClientRect();
+
+    return {
+      x: event.pageX - rect.left,
+      y: event.pageY - rect.top
+    };
+  }
+
   calculateActivePiecePosition(event: MouseEvent) {
+    const position = this.getMousePosition(event);
+
     return new Coordinates(
-      event.pageX - this.jigsaw.destPieceSize.width / 2, 
-      event.pageY - this.jigsaw.destPieceSize.height / 2
+      position.x - this.jigsaw.destPieceSize.width / 2, 
+      position.y- this.jigsaw.destPieceSize.height / 2
     );
   }
 
   calculateVector(event: MouseEvent, currentPosition: Coordinates) {
+    const position = this.getMousePosition(event);
+
     return new Coordinates(
-      event.pageX - this.jigsaw.destPieceSize.width / 2 - currentPosition.x,
-      event.pageY - this.jigsaw.destPieceSize.height / 2 - currentPosition.y
+      position.x - this.jigsaw.destPieceSize.width / 2 - currentPosition.x,
+      position.y - this.jigsaw.destPieceSize.height / 2 - currentPosition.y
     );
   }
 
-  isMouseOverPiece(piece: Piece, x: number, y: number) {
-    if (x >= piece.destPosition.x && x <= piece.destPosition.x + this.jigsaw.destPieceSize.width 
-      && y >= piece.destPosition.y && y <= piece.destPosition.y + this.jigsaw.destPieceSize.height) {
+  isMouseOverPiece(piece: Piece, event: MouseEvent) {
+    const position = this.getMousePosition(event);
+
+    if (position.x >= piece.destPosition.x && position.x <= piece.destPosition.x + this.jigsaw.destPieceSize.width 
+      && position.y >= piece.destPosition.y && position.y <= piece.destPosition.y + this.jigsaw.destPieceSize.height) {
       return true;
     } else {
       return false;
     }
   }
 
-  isPieceInTargetPosition(piece: Piece, x: number, y: number) {
-    if (x >= piece.targetPosition.x + this.jigsaw.offset.x 
-      && x <= piece.targetPosition.x + this.jigsaw.destPieceSize.width - this.jigsaw.offset.x
-      && y >= piece.targetPosition.y + this.jigsaw.offset.x 
-      && y <= piece.targetPosition.y + this.jigsaw.destPieceSize.height - this.jigsaw.offset.y) {
+  isPieceInTargetPosition(piece: Piece, event: MouseEvent) {
+    const position = this.getMousePosition(event);
+
+    if (position.x >= piece.targetPosition.x + this.jigsaw.offset.x 
+      && position.x <= piece.targetPosition.x + this.jigsaw.destPieceSize.width - this.jigsaw.offset.x
+      && position.y >= piece.targetPosition.y + this.jigsaw.offset.x 
+      && position.y <= piece.targetPosition.y + this.jigsaw.destPieceSize.height - this.jigsaw.offset.y) {
       return true;
     } else {
       return false;
