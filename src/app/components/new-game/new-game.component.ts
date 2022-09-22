@@ -80,7 +80,7 @@ export class NewGameComponent implements OnInit {
   }
 
   startGame() {
-    const boardSettings: BoardSettings = { preview: false };
+    const boardSettings: BoardSettings = { preview: false, fullscreen: false };
     
     this.gameService.setBoardSettings(boardSettings);
     this.gameService.setGameSettings(this.gameSettingsForm.value);

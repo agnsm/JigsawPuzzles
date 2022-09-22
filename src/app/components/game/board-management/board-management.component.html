@@ -28,9 +28,9 @@
       </button>
     </li>
     <li class="option">
-      <button mat-mini-fab color="primary">
-        <mat-icon>fullscreen</mat-icon>
-        <mat-icon>fullscreen_exit</mat-icon>
+      <button mat-mini-fab color="primary" (click)="toggleFullscreen()">
+        <mat-icon *ngIf="!boardSettings.fullscreen">fullscreen</mat-icon>
+        <mat-icon *ngIf="boardSettings.fullscreen">fullscreen_exit</mat-icon>
       </button>
     </li>
   </ul>

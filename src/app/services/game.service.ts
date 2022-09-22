@@ -31,4 +31,13 @@ export class GameService {
       }
     });
   }
+
+  toggleFullscreen() {
+    this.boardSettings$.pipe(take(1)).subscribe(settings => {
+      if (settings) {
+        settings.fullscreen = !settings.fullscreen;
+        this.boardSettings.next(settings);
+      }
+    });
+  }
 }

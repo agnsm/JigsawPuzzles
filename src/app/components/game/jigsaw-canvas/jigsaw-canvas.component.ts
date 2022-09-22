@@ -77,6 +77,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   resetCanvasState() {
+    this.manageFullscreen();
     this.clearCanvas();
     this.displayBoundaries();
     if (this.boardSettings.preview) {
@@ -104,6 +105,14 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.imageElement.nativeElement.height, 
       innerWidth, innerHeight, this.scale.jigsaw
     );
+  }
+
+  manageFullscreen() {
+    if (this.boardSettings.fullscreen) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
   }
 
   clearCanvas() {

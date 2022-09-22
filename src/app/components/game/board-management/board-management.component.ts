@@ -29,4 +29,8 @@ export class BoardManagementComponent implements OnInit, OnDestroy {
   togglePreview() {
     this.gameService.togglePreview();
   }
+
+  toggleFullscreen() {
+    this.gameService.toggleFullscreen();
+  }
 }
