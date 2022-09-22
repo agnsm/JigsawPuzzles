@@ -1,19 +1,24 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { BoardSettings } from 'src/app/models/boardSettings';
 import { Canvas } from 'src/app/models/canvas';
 import { Coordinates } from 'src/app/models/coordinates';
 import { GameSettings } from 'src/app/models/gameSettings';
 import { Jigsaw } from 'src/app/models/jigsaw';
 import { Piece } from 'src/app/models/piece';
+import { GameService } from 'src/app/services/game.service';
 
 @Component({
   selector: 'app-jigsaw-canvas',
   templateUrl: './jigsaw-canvas.component.html',
   styleUrls: ['./jigsaw-canvas.component.scss']
 })
-export class JigsawCanvasComponent implements OnInit, AfterViewInit {
+export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('canvas') canvasElement!: ElementRef<HTMLCanvasElement>;
   @ViewChild('image') imageElement!: ElementRef<HTMLImageElement>;
   @Input() gameSettings!: GameSettings;
+  boardSettings!: BoardSettings;
+  boardSettingsSubscription!: Subscription;
 
   context!: CanvasRenderingContext2D;
 
@@ -25,9 +30,20 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   scale = { canvas: 1.5, jigsaw: 0.75 };
   alpha = 0.4;
 
-  constructor() { }
+  jigsawInitialized = false;
+
+  constructor(private gameService: GameService) { }
 
   ngOnInit(): void {
+    this.boardSettingsSubscription = this.gameService.boardSettings$.subscribe(boardSettings => {
+      if (boardSettings) {
+        this.boardSettings = boardSettings;
+
+        if (this.jigsawInitialized) {
+          this.drawJigsaw();
+        }
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -40,6 +56,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
 
       this.prepareJigsaw();
     }, 500);
+  }
+
+  ngOnDestroy(): void {
+    this.boardSettingsSubscription.unsubscribe();
   }
 
   initializeImageElement() {
@@ -59,7 +79,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
   resetCanvasState() {
     this.clearCanvas();
     this.displayBoundaries();
-    this.displayBackground();
+    if (this.boardSettings.preview) {
+      this.displayBackground();
+    }
   }
 
   initializeCanvas() {
@@ -119,12 +141,14 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit {
         this.drawPiece(piece);
       }
     }
+
+    this.jigsawInitialized = true;
   }
 
   createPiece(row: number, col: number) {
     const sourceX = this.jigsaw.sourcePieceSize.width * col;
     const sourceY = this.jigsaw.sourcePieceSize.height * row;
-    const destX = Math.random() * (innerWidth - this.jigsaw.destPieceSize.width);
+    const destX = Math.random() * (innerWidth - this.jigsaw.destPieceSize.width) + 60; //
     const destY = Math.random() * (innerHeight - this.jigsaw.destPieceSize.height);
     const targetX = this.jigsaw.position.x + col * this.jigsaw.destPieceSize.width;
     const targetY = this.jigsaw.position.y + row * this.jigsaw.destPieceSize.height;

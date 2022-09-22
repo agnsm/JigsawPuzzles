@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, take } from 'rxjs';
+import { BoardSettings } from '../models/boardSettings';
 
 import { GameSettings } from '../models/gameSettings';
 
@@ -9,10 +10,25 @@ import { GameSettings } from '../models/gameSettings';
 export class GameService {
   private gameSettings = new BehaviorSubject<GameSettings | null>(null);
   public gameSettings$ = this.gameSettings.asObservable();
+  private boardSettings = new BehaviorSubject<BoardSettings | null>(null);
+  public boardSettings$ = this.boardSettings.asObservable();
 
   constructor() { }
 
-  setGameSettings(gameSettingsForm: GameSettings) {
-    this.gameSettings.next(gameSettingsForm);
+  setGameSettings(gameSettings: GameSettings) {
+    this.gameSettings.next(gameSettings);
+  }
+
+  setBoardSettings(boardSettings: BoardSettings) {
+    this.boardSettings.next(boardSettings);
+  }
+
+  togglePreview() {
+    this.boardSettings$.pipe(take(1)).subscribe(settings => {
+      if (settings) {
+        settings.preview = !settings.preview;
+        this.boardSettings.next(settings);
+      }
+    });
   }
 }

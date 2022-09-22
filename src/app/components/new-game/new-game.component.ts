@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faPuzzlePiece, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
+import { BoardSettings } from 'src/app/models/boardSettings';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
@@ -79,7 +80,11 @@ export class NewGameComponent implements OnInit {
   }
 
   startGame() {
+    const boardSettings: BoardSettings = { preview: false };
+    
+    this.gameService.setBoardSettings(boardSettings);
     this.gameService.setGameSettings(this.gameSettingsForm.value);
+
     this.router.navigateByUrl('game');
   }
 }
