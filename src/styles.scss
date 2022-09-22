@@ -62,3 +62,23 @@ body {
   margin: 0; 
   font-family: Roboto, "Helvetica Neue", sans-serif; 
 }
+
+// custom scrollbar
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(26, 28, 39, 0.25);
+}
+ 
+::-webkit-scrollbar-thumb {
+  background: rgba(26, 28, 39, 1);
+  // border-radius: 25px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(207, 128, 48, 1)
+}

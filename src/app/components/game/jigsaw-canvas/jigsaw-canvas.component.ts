@@ -306,8 +306,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     const rect = this.canvasElement.nativeElement.getBoundingClientRect();
 
     return {
-      x: event.pageX - rect.left,
-      y: event.pageY - rect.top
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
     };
   }
 
