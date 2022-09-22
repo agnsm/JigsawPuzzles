@@ -27,7 +27,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   activePiece: Piece | null = null;
 
-  scale = { canvas: 1.5, jigsaw: 0.75 };
+  scale = { canvas: 1.5, jigsaw: 0.6 };
   alpha = 0.4;
 
   jigsawInitialized = false;
@@ -40,6 +40,16 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
         this.boardSettings = boardSettings;
 
         if (this.jigsawInitialized) {
+          if (boardSettings.zoomChange != 0) {
+            const pieces = this.jigsaw.pieces;
+    
+            this.initializeJigsaw();
+
+            pieces.forEach(piece => {
+              this.transformPiece(piece);
+            });
+          }
+          
           this.drawJigsaw();
         }
       }
@@ -103,7 +113,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.gameSettings.rows, this.gameSettings.cols, 
       this.imageElement.nativeElement.width, 
       this.imageElement.nativeElement.height, 
-      innerWidth, innerHeight, this.scale.jigsaw
+      innerWidth, innerHeight, this.scale.jigsaw * this.boardSettings.zoom
     );
   }
 
@@ -146,19 +156,26 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   prepareJigsaw() {
     for (let row = 0; row < this.jigsaw.size.rows; row++) {
       for (let col = 0; col < this.jigsaw.size.cols; col++) {
-        const piece = this.createPiece(row, col);        
-        this.drawPiece(piece);
+        this.createPiece(row, col);
       }
     }
 
+    this.drawJigsaw();
     this.jigsawInitialized = true;
   }
 
   createPiece(row: number, col: number) {
     const sourceX = this.jigsaw.sourcePieceSize.width * col;
     const sourceY = this.jigsaw.sourcePieceSize.height * row;
-    const destX = Math.random() * (innerWidth - this.jigsaw.destPieceSize.width);
-    const destY = Math.random() * (innerHeight - this.jigsaw.destPieceSize.height);
+
+    let max = innerWidth - 3 * this.jigsaw.destPieceSize.width;
+    let min = this.jigsaw.destPieceSize.width;
+    const destX = Math.floor(Math.random() * (max - min) + min);
+
+    max = innerHeight - 2 * this.jigsaw.destPieceSize.height;
+    min = this.jigsaw.destPieceSize.height;
+    const destY = Math.floor(Math.random() * (max - min) + min);
+
     const targetX = this.jigsaw.position.x + col * this.jigsaw.destPieceSize.width;
     const targetY = this.jigsaw.position.y + row * this.jigsaw.destPieceSize.height;
 
@@ -170,8 +187,24 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     );
     
     this.jigsaw.addPiece(piece);
+  }
+  
+  transformPiece(piece: Piece) {
+    const vectorX = piece.destPosition.x - innerWidth / 2;
+    const vectorXScaled = vectorX * this.boardSettings.zoomChange;
+    const destX = vectorXScaled + innerWidth / 2;
 
-    return piece;
+    const vectorY = piece.destPosition.y - innerHeight / 2;
+    const vectorYScaled = vectorY * this.boardSettings.zoomChange;
+    const destY = vectorYScaled + innerHeight / 2;
+
+    const targetX = this.jigsaw.position.x + piece.col * this.jigsaw.destPieceSize.width;
+    const targetY = this.jigsaw.position.y + piece.row * this.jigsaw.destPieceSize.height;
+
+    piece.setDestPosition(new Coordinates(destX, destY));
+    piece.setTargetPosition(new Coordinates(targetX, targetY));
+    
+    this.jigsaw.addPiece(piece);
   }
 
   drawPiece(piece: Piece) {
@@ -215,7 +248,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       if (piece != this.activePiece) {
         piece.setPositionBasedOnVector(vector);
       } else {
-        piece.setPosition(newPosition);
+        piece.setDestPosition(newPosition);
       }
     });
 
