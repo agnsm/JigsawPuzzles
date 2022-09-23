@@ -1,3 +1,5 @@
+@use 'src/library';
+
 @use '@angular/material' as mat;
 @include mat.core();
 
@@ -71,18 +73,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(26, 28, 39, 0.8);
+  background: library.$dark-transparent;
 }
  
 ::-webkit-scrollbar-thumb {
-  background: rgba(26, 28, 39, 1);
+  background: library.$dark;
   border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(207, 128, 48, 0.8)
-}
-
 ::-webkit-scrollbar-corner {
-  background: rgba(26, 28, 39, 0.8);
+  background: library.$dark-transparent;
 }

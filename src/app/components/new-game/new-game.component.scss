@@ -1,9 +1,11 @@
+@use '/src/library';
+
 .new-game-container {
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(rgba(207, 128, 48, 0.4) 50%, rgba(26, 28, 39, 0.8)), url("../../../assets/background.jpg");
+  background: linear-gradient(library.$primary-transparent 50%, library.$dark-transparent), url("../../../assets/background.jpg");
   background-position: top;
   animation: background-position 50s infinite;
 }
@@ -11,7 +13,7 @@
 .new-game-form {
   width: 800px;
   align-items: center;
-  background-color: rgba(26, 28, 39, 0.8);
+  background-color: library.$dark-transparent;
   padding: 50px;
 }
 
@@ -25,18 +27,18 @@
     display: flex;
     align-items: center;
     width: 50%;
-    color: #cf8030;
+    color: library.$primary;
 
     .number {
       display: inline-block;
       width: 60px;
       text-align: center;
-      background-color: #1a1c27;
+      background-color: library.$dark;
       font-size: 3rem;
       font-weight: bold;
-      border: 1px solid #cf8030;
+      border: 1px solid library.$primary;
       border-radius: 50%;
-      filter: drop-shadow(0 0 0.1rem #cf8030);
+      filter: drop-shadow(0 0 0.1rem library.$primary);
     }
 
     .text {
@@ -62,15 +64,15 @@
   align-items: center;
   position: relative;
   font-size: 5rem;
-  color: #1a1c27;
-  background-image: linear-gradient(to bottom, #cf8030 50%, #1a1c27 50%);
+  color: library.$dark;
+  background-image: linear-gradient(to bottom, library.$primary 50%, library.$dark 50%);
   background-size: 100% 200%;
   border-radius: 25px;
   padding: 25px;
   transition: all 1s;
 
   &:hover {
-    color: #cf8030;
+    color: library.$primary;
     background-position: 0 -100%;
   }
 }
@@ -92,27 +94,27 @@
   text-align: center;
   width: 20%;
   font-size: 1.5rem;
-  color: #1a1c27;
-  background-image: linear-gradient(to bottom, #cf8030 50%, #1a1c27 50%);
+  color: library.$dark;
+  background-image: linear-gradient(to bottom, library.$primary 50%, library.$dark 50%);
   background-size: 100% 200%;
   border-radius: 10px;
   padding: 10px;
   transition: all 1s;
 
   &:hover {
-    color: #cf8030;
+    color: library.$primary;
     background-position: 0 -100%;
   }
 }
 
 .selected {
-  color: #cf8030;
+  color: library.$primary;
   background-position: 0 -100%;
 }
 
 .start {
   font-size: 7rem;
-  color: #cf8030;
+  color: library.$primary;
   transition: all 1s;
   background: transparent;
   border: none;
@@ -152,14 +154,14 @@
 
 @keyframes glowing {
   0% {
-    filter: drop-shadow(0 0 0.25rem #cf8030);
+    filter: drop-shadow(0 0 0.25rem library.$primary);
   }
 
   50% {
-    filter: drop-shadow(0 0 0.4rem #cf8030);
+    filter: drop-shadow(0 0 0.4rem library.$primary);
   }
 
   100% {
-    filter: drop-shadow(0 0 0.25rem #cf8030);
+    filter: drop-shadow(0 0 0.25rem library.$primary);
   }
 }
