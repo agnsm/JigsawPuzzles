@@ -34,6 +34,10 @@ export class BoardManagementComponent implements OnInit, OnDestroy {
     this.gameService.zoomOut();
   }
 
+  toggleFullImage() {
+    this.gameService.toggleFullImage();
+  }
+
   togglePreview() {
     this.gameService.togglePreview();
   }

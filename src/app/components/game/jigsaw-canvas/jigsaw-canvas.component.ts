@@ -49,8 +49,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
               this.transformPiece(piece);
             });
           }
-          
+
           this.drawJigsaw();
+
+          this.manageFullImage();
         }
       }
     });
@@ -122,6 +124,14 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       document.documentElement.requestFullscreen();
     } else if (document.fullscreenElement) {
       document.exitFullscreen();
+    }
+  }
+
+  manageFullImage() {
+    if (this.boardSettings.fullImage) {
+      this.imageElement.nativeElement.style.display = 'initial';
+    } else {
+      this.imageElement.nativeElement.style.display = 'none';
     }
   }
 

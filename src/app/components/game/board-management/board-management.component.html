@@ -10,8 +10,10 @@
     </button>
   </li>
   <li class="option">
-    <button mat-mini-fab color="primary">
-      <mat-icon>image</mat-icon>
+    <button mat-mini-fab color="primary" (click)="toggleFullImage()">
+      <mat-icon *ngIf="!boardSettings.fullImage">image</mat-icon>
+      <mat-icon *ngIf="boardSettings.fullImage">close</mat-icon>
+
     </button>
   </li>
   <li class="option">

@@ -1,3 +1,5 @@
+@use '/src/library';
+
 .jigsaw {
   position: absolute;
   left: 60px;
@@ -6,4 +8,11 @@
 
 .image {
   display: none;
+  position: absolute;
+  max-width: 75%;
+  max-height: 75%;
+  top: 25px;
+  left: 85px;
+  z-index: 1;
+  filter: drop-shadow(0 0 1rem library.$dark);
 }

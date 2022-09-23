@@ -34,13 +34,22 @@ export class GameService {
     });
   }
 
-  
   zoomOut() {
     this.boardSettings$.pipe(take(1)).subscribe(settings => {
       if (settings && settings.zoomLevel > -5) {
         settings.zoom *= 9/10;
         settings.zoomChange = 9/10;
         settings.zoomLevel--;
+        this.boardSettings.next(settings);
+      }
+    });
+  }
+
+  toggleFullImage() {
+    this.boardSettings$.pipe(take(1)).subscribe(settings => {
+      if (settings) {
+        settings.fullImage = !settings.fullImage;
+        settings.zoomChange = 0;
         this.boardSettings.next(settings);
       }
     });
