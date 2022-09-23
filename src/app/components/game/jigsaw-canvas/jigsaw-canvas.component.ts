@@ -65,7 +65,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resetCanvasState();
 
       this.prepareJigsaw();
-    }, 500);
+    }, 1000);
   }
 
   ngOnDestroy(): void {
@@ -131,15 +131,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.canvas.size.width, this.canvas.size.height
     );
 
-    const gradient = this.context.createLinearGradient(
-      this.canvas.position.x, this.canvas.position.y, 
-      this.canvas.position.x, this.canvas.position.y + this.canvas.size.height
-    );
-
-    gradient.addColorStop(0, 'rgba(207, 128, 48, 0.5)');
-    gradient.addColorStop(1, 'rgba(26, 28, 39, 0.8)');
-
-    this.context.fillStyle = gradient;
+    this.context.fillStyle = 'rgba(26, 28, 39, 0.9)';
     this.context.fillRect(
       this.canvas.position.x, this.canvas.position.y, 
       this.canvas.size.width, this.canvas.size.height

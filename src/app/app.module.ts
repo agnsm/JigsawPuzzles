@@ -12,6 +12,7 @@ import { BoardManagementComponent } from './components/game/board-management/boa
 import { GameComponent } from './components/game/game/game.component';
 import { JigsawCanvasComponent } from './components/game/jigsaw-canvas/jigsaw-canvas.component';
 import { NewGameComponent } from './components/new-game/new-game.component';
+import { TransitionComponent } from './components/shared/transition/transition.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { NewGameComponent } from './components/new-game/new-game.component';
     NewGameComponent,
     GameComponent,
     JigsawCanvasComponent,
-    BoardManagementComponent
+    BoardManagementComponent,
+    TransitionComponent
   ],
   imports: [
     BrowserModule,

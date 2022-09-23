@@ -1,0 +1,19 @@
+@use '/src/library';
+
+.loading {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: library.$dark;
+
+  fa-icon {
+    position: absolute;
+    top: calc((100% - 7rem) / 2);
+    left: 50%;
+    font-size: 7rem;
+    color: library.$primary;
+    filter: drop-shadow(0 0 0.75rem library.$primary);
+  }
+}

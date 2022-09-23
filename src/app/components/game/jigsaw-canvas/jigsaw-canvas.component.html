@@ -1,7 +1,9 @@
+<app-transition [condition]="jigsawInitialized"></app-transition>
+
+<img #image src="" alt="jigsaw image" class="image">
+
 <canvas #canvas class="jigsaw"
   (mousedown)="pickUpPiece($event)" 
   (mousemove)="dragPiece($event)"
   (mouseup)="dropPiece($event)">
 </canvas>
-
-<img #image src="" alt="jigsaw image">
