@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BoardSettings } from 'src/app/models/boardSettings';
 import { GameService } from 'src/app/services/game.service';
@@ -6,7 +6,8 @@ import { GameService } from 'src/app/services/game.service';
 @Component({
   selector: 'app-board-management',
   templateUrl: './board-management.component.html',
-  styleUrls: ['./board-management.component.scss']
+  styleUrls: ['./board-management.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class BoardManagementComponent implements OnInit, OnDestroy {
   boardSettings!: BoardSettings;
