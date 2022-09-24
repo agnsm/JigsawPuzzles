@@ -1,0 +1,8 @@
+@use '/src/library';
+
+.stopwatch {
+  font-size: 1.1rem;
+  color: library.$primary;
+  background-color: library.$dark-transparent;
+  padding: 5px;
+}

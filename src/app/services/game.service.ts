@@ -65,6 +65,16 @@ export class GameService {
     });
   }
 
+  toggleTimer() {
+    this.boardSettings$.pipe(take(1)).subscribe(settings => {
+      if (settings) {
+        settings.timer = !settings.timer;
+        settings.zoomChange = 0;
+        this.boardSettings.next(settings);
+      }
+    });
+  }
+
   toggleFullscreen() {
     this.boardSettings$.pipe(take(1)).subscribe(settings => {
       if (settings) {

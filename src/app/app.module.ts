@@ -12,6 +12,7 @@ import { AppComponent } from './app.component';
 import { BoardManagementComponent } from './components/game/board-management/board-management.component';
 import { GameComponent } from './components/game/game/game.component';
 import { JigsawCanvasComponent } from './components/game/jigsaw-canvas/jigsaw-canvas.component';
+import { ProgressComponent } from './components/game/progress/progress.component';
 import { NewGameComponent } from './components/new-game/new-game.component';
 import { TransitionComponent } from './components/shared/transition/transition.component';
 
@@ -22,7 +23,8 @@ import { TransitionComponent } from './components/shared/transition/transition.c
     GameComponent,
     JigsawCanvasComponent,
     BoardManagementComponent,
-    TransitionComponent
+    TransitionComponent,
+    ProgressComponent
   ],
   imports: [
     BrowserModule,

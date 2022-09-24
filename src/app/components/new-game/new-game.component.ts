@@ -86,6 +86,7 @@ export class NewGameComponent implements OnInit {
       zoomChange: 0, 
       fullImage: false,
       preview: false, 
+      timer: true,
       fullscreen: false 
     };
     

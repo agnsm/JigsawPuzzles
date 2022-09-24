@@ -4,5 +4,6 @@ export interface BoardSettings {
   zoomChange: number;
   fullImage: boolean;
   preview: boolean;
+  timer: boolean;
   fullscreen: boolean;
 }

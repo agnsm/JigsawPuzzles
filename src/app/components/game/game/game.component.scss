@@ -1,8 +1,16 @@
 .board-management {
   height: 100vh;
-  position: absolute;
+  position: fixed;
+  z-index: 1;
   top: 0;
   left: 0;
+}
+
+.progress {
+  position: fixed;
+  z-index: 1;
+  top: 25px;
+  right: 25px;
 }
 
 .jigsaw-canvas {

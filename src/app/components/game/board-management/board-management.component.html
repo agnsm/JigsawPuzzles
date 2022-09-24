@@ -26,10 +26,10 @@
     </button>
   </li>
   <li class="option">
-    <button mat-mini-fab color="primary"
+    <button mat-mini-fab color="primary" (click)="toggleTimer()"
       matTooltip="Zegar" matTooltipPosition="right" matTooltipClass="tooltip">
-      <mat-icon>timer</mat-icon>
-      <!-- <mat-icon>timer_off</mat-icon> -->
+      <mat-icon *ngIf="!boardSettings.timer">timer</mat-icon>
+      <mat-icon *ngIf="boardSettings.timer">timer_off</mat-icon>
     </button>
   </li>
   <li class="option">
