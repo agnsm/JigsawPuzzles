@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
-import { BoardSettings } from 'src/app/models/boardSettings';
-import { Stopwatch } from 'src/app/models/stopwatch';
+import { BoardSettings } from 'src/app/models/interfaces/board-settings';
+import { Stopwatch } from 'src/app/models/interfaces/stopwatch';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({

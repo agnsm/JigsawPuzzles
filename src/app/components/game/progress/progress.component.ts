@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
-import { ProgressBar } from 'src/app/models/progressBar';
+import { ProgressBar } from 'src/app/models/interfaces/progress-bar';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({

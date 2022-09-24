@@ -3,7 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faPuzzlePiece, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
-import { BoardSettings } from 'src/app/models/boardSettings';
+import { BoardSettings } from 'src/app/models/interfaces/board-settings';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({

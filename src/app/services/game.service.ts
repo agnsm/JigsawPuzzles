@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, take } from 'rxjs';
-import { BoardSettings } from '../models/boardSettings';
-
-import { GameSettings } from '../models/gameSettings';
-import { ProgressBar } from '../models/progressBar';
+import { BoardSettings } from '../models/interfaces/board-settings';
+import { GameSettings } from '../models/interfaces/game-settings';
+import { ProgressBar } from '../models/interfaces/progress-bar';
 
 @Injectable({
   providedIn: 'root'

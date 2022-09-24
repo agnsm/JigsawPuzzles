@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { BoardSettings } from 'src/app/models/boardSettings';
+import { BoardSettings } from 'src/app/models/interfaces/board-settings';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({

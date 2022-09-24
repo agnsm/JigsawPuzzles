@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { BoardSettings } from 'src/app/models/boardSettings';
-import { Canvas } from 'src/app/models/canvas';
-import { Coordinates } from 'src/app/models/coordinates';
-import { GameSettings } from 'src/app/models/gameSettings';
-import { Jigsaw } from 'src/app/models/jigsaw';
-import { Piece } from 'src/app/models/piece';
-import { ProgressBar } from 'src/app/models/progressBar';
+import { Canvas } from 'src/app/models/classes/canvas';
+import { Coordinates } from 'src/app/models/classes/coordinates';
+import { Jigsaw } from 'src/app/models/classes/jigsaw';
+import { Piece } from 'src/app/models/classes/piece';
+import { BoardSettings } from 'src/app/models/interfaces/board-settings';
+import { GameSettings } from 'src/app/models/interfaces/game-settings';
+import { ProgressBar } from 'src/app/models/interfaces/progress-bar';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({

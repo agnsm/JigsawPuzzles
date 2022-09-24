@@ -1,4 +1,4 @@
-import { TabularSize } from "./tabularSize";
+import { TabularSize } from "./tabular-size";
 import { Piece } from "./piece";
 import { Size } from "./size";
 import { Coordinates } from "./coordinates";
