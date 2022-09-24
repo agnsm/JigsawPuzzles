@@ -12,7 +12,11 @@
   z-index: 1;
   max-width: 75%;
   max-height: 75%;
-  top: 25px;
+  top: 40px;
   left: 85px;
   filter: drop-shadow(0 0 1rem library.$dark);
+
+  &::selection {
+    background: transparent;
+  }
 }
