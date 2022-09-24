@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -13,6 +14,7 @@ import { BoardManagementComponent } from './components/game/board-management/boa
 import { GameComponent } from './components/game/game/game.component';
 import { JigsawCanvasComponent } from './components/game/jigsaw-canvas/jigsaw-canvas.component';
 import { ProgressComponent } from './components/game/progress/progress.component';
+import { TimerComponent } from './components/game/timer/timer.component';
 import { NewGameComponent } from './components/new-game/new-game.component';
 import { TransitionComponent } from './components/shared/transition/transition.component';
 
@@ -24,7 +26,8 @@ import { TransitionComponent } from './components/shared/transition/transition.c
     JigsawCanvasComponent,
     BoardManagementComponent,
     TransitionComponent,
-    ProgressComponent
+    ProgressComponent,
+    TimerComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +37,8 @@ import { TransitionComponent } from './components/shared/transition/transition.c
     FontAwesomeModule,
     MatButtonModule,
     MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

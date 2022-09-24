@@ -6,6 +6,7 @@ import { Coordinates } from 'src/app/models/coordinates';
 import { GameSettings } from 'src/app/models/gameSettings';
 import { Jigsaw } from 'src/app/models/jigsaw';
 import { Piece } from 'src/app/models/piece';
+import { ProgressBar } from 'src/app/models/progressBar';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
@@ -67,6 +68,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resetCanvasState();
 
       this.prepareJigsaw();
+      this.setProgressBar();
     }, 1000);
   }
 
@@ -180,6 +182,11 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.jigsawInitialized = true;
   }
 
+  setProgressBar() {
+    const progressBar: ProgressBar = { currentPieces: 0, allPieces: this.jigsaw.pieces.length, value: 0 };
+    this.gameService.setProgressBar(progressBar);
+  }
+
   createPiece(row: number, col: number) {
     const sourceX = this.jigsaw.sourcePieceSize.width * col;
     const sourceY = this.jigsaw.sourcePieceSize.height * row;
@@ -286,6 +293,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
         this.jigsaw.movePieceToBottom(piece);
         piece.setPositionToTarget();
         piece.lock();
+        this.gameService.updateProgressBar();
       });
 
       this.drawJigsaw(); 

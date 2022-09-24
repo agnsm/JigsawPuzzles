@@ -7,6 +7,14 @@
 }
 
 .progress {
+  width: calc(100% - 60px);
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 60px;
+}
+
+.timer {
   position: fixed;
   z-index: 1;
   top: 25px;

@@ -3,6 +3,7 @@ import { BehaviorSubject, take } from 'rxjs';
 import { BoardSettings } from '../models/boardSettings';
 
 import { GameSettings } from '../models/gameSettings';
+import { ProgressBar } from '../models/progressBar';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,8 @@ export class GameService {
   public gameSettings$ = this.gameSettings.asObservable();
   private boardSettings = new BehaviorSubject<BoardSettings | null>(null);
   public boardSettings$ = this.boardSettings.asObservable();
+  private progressBar = new BehaviorSubject<ProgressBar | null>(null);
+  public progressBar$ = this.progressBar.asObservable();
 
   constructor() { }
 
@@ -21,6 +24,10 @@ export class GameService {
 
   setBoardSettings(boardSettings: BoardSettings) {
     this.boardSettings.next(boardSettings);
+  }
+
+  setProgressBar(progressBar: ProgressBar) {
+    this.progressBar.next(progressBar);
   }
 
   zoomIn() {
@@ -81,6 +88,16 @@ export class GameService {
         settings.fullscreen = !settings.fullscreen;
         settings.zoomChange = 0;
         this.boardSettings.next(settings);
+      }
+    });
+  }
+
+  updateProgressBar() {
+    this.progressBar$.pipe(take(1)).subscribe(progress => {
+      if (progress) {
+        progress.currentPieces++;
+        progress.value = (progress.currentPieces / progress.allPieces) * 100;
+        this.progressBar.next(progress);
       }
     });
   }
