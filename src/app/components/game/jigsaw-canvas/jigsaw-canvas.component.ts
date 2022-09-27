@@ -42,13 +42,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (this.jigsawInitialized) {
           if (boardSettings.zoomChange != 0) {
-            const pieces = this.jigsaw.pieces;
-    
-            this.initializeJigsaw();
-
-            pieces.forEach(piece => {
-              this.transformPiece(piece);
-            });
+            this.jigsaw.zoomJigsaw(this.boardSettings.zoomChange);
           }
 
           this.drawJigsaw();
@@ -117,7 +111,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.gameSettings.rows, this.gameSettings.cols, 
       this.imageElement.nativeElement.width, 
       this.imageElement.nativeElement.height, 
-      innerWidth, innerHeight, this.scale.jigsaw * this.boardSettings.zoom
+      innerWidth, innerHeight, this.scale.jigsaw
     );
   }
 
@@ -208,24 +202,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       destX, destY, 
       targetX, targetY
     );
-    
-    this.jigsaw.addPiece(piece);
-  }
-  
-  transformPiece(piece: Piece) {
-    const vectorX = piece.destPosition.x - innerWidth / 2;
-    const vectorXScaled = vectorX * this.boardSettings.zoomChange;
-    const destX = vectorXScaled + innerWidth / 2;
-
-    const vectorY = piece.destPosition.y - innerHeight / 2;
-    const vectorYScaled = vectorY * this.boardSettings.zoomChange;
-    const destY = vectorYScaled + innerHeight / 2;
-
-    const targetX = this.jigsaw.position.x + piece.col * this.jigsaw.destPieceSize.width;
-    const targetY = this.jigsaw.position.y + piece.row * this.jigsaw.destPieceSize.height;
-
-    piece.setDestPosition(new Coordinates(destX, destY));
-    piece.setTargetPosition(new Coordinates(targetX, targetY));
     
     this.jigsaw.addPiece(piece);
   }

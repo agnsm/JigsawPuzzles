@@ -1,10 +1,11 @@
-import { TabularSize } from "./tabular-size";
+import { Coordinates } from "./coordinates";
 import { Piece } from "./piece";
 import { Size } from "./size";
-import { Coordinates } from "./coordinates";
+import { TabularSize } from "./tabular-size";
 
 export class Jigsaw {
   private _size: TabularSize;
+  private _imageSize: Size;
   private _position: Coordinates;
   private _offset: Coordinates;
   private _scale: number;
@@ -28,6 +29,8 @@ export class Jigsaw {
       imageHeight * this._ratio, 
       rows, cols
     );
+
+    this._imageSize = new Size(imageWidth, imageHeight);
 
     this._position = new Coordinates(
       (canvasWidth - this._size.width) / 2, 
@@ -91,5 +94,79 @@ export class Jigsaw {
 
   public getPiece(row: number, col: number) {
     return this.pieces.filter(piece => piece.row == row && piece.col == col)[0];
+  }
+
+  public zoomJigsaw(zoom: number) {
+    this.calculateNewRatio(zoom);
+    this.setSize();
+    this.setPosition(zoom);
+    this.setDestPieceSize();
+    this.setOffset();
+
+    this._pieces.forEach(piece => {
+      this.zoomPiece(piece, zoom);
+    });
+  }
+
+  private calculateNewRatio(zoom: number) {
+    this._ratio *= zoom;
+  }
+
+  private setSize() {
+    this._size = new TabularSize(
+      this._imageSize.width * this._ratio, 
+      this._imageSize.height * this._ratio, 
+      this._size.rows, this._size.cols
+    );
+  }
+
+  private setPosition(zoom: number) {
+    const vectorX = this._position.x - innerWidth / 2;
+    const vectorXScaled = vectorX * zoom;
+    const positionX = vectorXScaled + innerWidth / 2;
+
+    const vectorY = this._position.y - innerHeight / 2;
+    const vectorYScaled = vectorY * zoom;
+    const positionY = vectorYScaled + innerHeight / 2;
+
+    this._position = new Coordinates(positionX, positionY);
+  }
+
+  private setDestPieceSize() {
+    this._destPieceSize = new Size(
+      this._size.width / this._size.cols, 
+      this._size.height / this._size.rows
+    );
+  }
+
+  private setOffset() {
+    this._offset = new Coordinates(
+      this._destPieceSize.width / 4,
+      this._destPieceSize.height / 4
+    );
+  }
+
+  public zoomPiece(piece: Piece, zoom: number) {
+    this.setPieceDestPosition(piece, zoom);
+    this.setPieceTargetPosition(piece);
+  }
+
+  private setPieceDestPosition(piece: Piece, zoom: number) {
+    const vectorX = piece.destPosition.x - innerWidth / 2;
+    const vectorXScaled = vectorX * zoom;
+    const destX = vectorXScaled + innerWidth / 2;
+
+    const vectorY = piece.destPosition.y - innerHeight / 2;
+    const vectorYScaled = vectorY * zoom;
+    const destY = vectorYScaled + innerHeight / 2;
+
+    piece.setDestPosition(new Coordinates(destX, destY));
+  }
+
+  private setPieceTargetPosition(piece: Piece) {
+    const targetX = this._position.x + piece.col * this._destPieceSize.width;
+    const targetY = this._position.y + piece.row * this._destPieceSize.height;
+
+    piece.setTargetPosition(new Coordinates(targetX, targetY));
   }
 }
