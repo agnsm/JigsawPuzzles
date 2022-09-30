@@ -21,8 +21,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   boardSettings!: BoardSettings;
   boardSettingsSubscription!: Subscription;
 
-  context!: CanvasRenderingContext2D;
-
   canvas!: Canvas;
   jigsaw!: Jigsaw;
 
@@ -54,7 +52,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.initializeContext();
     this.initializeImageElement();
 
     setTimeout(() => {
@@ -72,10 +69,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   initializeImageElement() {
     this.imageElement.nativeElement.src = URL.createObjectURL(this.gameSettings.image);
-  }
-
-  initializeContext() {
-    this.context = this.canvasElement.nativeElement.getContext('2d')!;
   }
 
   adjustCanvas() {
@@ -97,6 +90,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.canvas = new Canvas(
       innerWidth, innerHeight, 
       0, 0, 
+      this.canvasElement.nativeElement.getContext('2d')!, 
       this.scale.canvas
     );
   }
@@ -132,37 +126,37 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearCanvas() {
-    this.context.clearRect(
+    this.canvas.context.clearRect(
       this.canvas.position.x, this.canvas.position.y, 
       this.canvas.size.width, this.canvas.size.height
     );
 
-    this.context.fillStyle = 'rgba(26, 28, 39, 0.9)';
-    this.context.fillRect(
+    this.canvas.context.fillStyle = 'rgba(26, 28, 39, 0.9)';
+    this.canvas.context.fillRect(
       this.canvas.position.x, this.canvas.position.y, 
       this.canvas.size.width, this.canvas.size.height
     );
   }
 
   displayBoundaries() {
-    this.context.beginPath();
-    this.context.rect(
+    this.canvas.context.beginPath();
+    this.canvas.context.rect(
       this.jigsaw.position.x, this.jigsaw.position.y, 
       this.jigsaw.size.width, this.jigsaw.size.height
     );
-    this.context.stroke();
-    this.context.save();
+    this.canvas.context.stroke();
+    this.canvas.context.save();
   }
 
   displayBackground() {
-    this.context.save();
-    this.context.globalAlpha = this.alpha;
-    this.context.drawImage(
+    this.canvas.context.save();
+    this.canvas.context.globalAlpha = this.alpha;
+    this.canvas.context.drawImage(
       this.imageElement.nativeElement, 
       this.jigsaw.position.x, this.jigsaw.position.y, 
       this.jigsaw.size.width, this.jigsaw.size.height
     );
-    this.context.restore();
+    this.canvas.context.restore();
   }
 
   prepareJigsaw() {
@@ -207,7 +201,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   drawPiece(piece: Piece) {
-    this.context.drawImage(
+    this.canvas.context.drawImage(
       this.imageElement.nativeElement, 
       piece.sourcePosition.x, piece.sourcePosition.y, 
       this.jigsaw.sourcePieceSize.width, this.jigsaw.sourcePieceSize.height,
@@ -215,7 +209,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
     );
 
-    this.context.strokeRect(
+    this.canvas.context.strokeRect(
       piece.destPosition.x, piece.destPosition.y, 
       this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
     );
