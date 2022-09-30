@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChi
 import { Subscription } from 'rxjs';
 import { Canvas } from 'src/app/models/classes/canvas';
 import { Coordinates } from 'src/app/models/classes/coordinates';
+import { Game } from 'src/app/models/classes/game';
 import { Jigsaw } from 'src/app/models/classes/jigsaw';
 import { Piece } from 'src/app/models/classes/piece';
 import { BoardSettings } from 'src/app/models/interfaces/board-settings';
@@ -21,15 +22,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   boardSettings!: BoardSettings;
   boardSettingsSubscription!: Subscription;
 
-  canvas!: Canvas;
-  jigsaw!: Jigsaw;
-
-  activePiece: Piece | null = null;
+  game!: Game;
 
   scale = { canvas: 1.5, jigsaw: 0.6 };
   alpha = 0.4;
-
-  jigsawInitialized = false;
 
   constructor(private gameService: GameService) { }
 
@@ -38,9 +34,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       if (boardSettings) {
         this.boardSettings = boardSettings;
 
-        if (this.jigsawInitialized) {
+        if (this.game && this.game.started) {
           if (boardSettings.zoomChange != 0) {
-            this.jigsaw.zoomJigsaw(this.boardSettings.zoomChange);
+            this.game.jigsaw.zoomJigsaw(this.boardSettings.zoomChange);
           }
 
           this.drawJigsaw();
@@ -52,10 +48,11 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.initializeImageElement();
+    this.setImageElementSrc();
 
     setTimeout(() => {
-      this.adjustCanvas();
+      this.initializeGame();
+      this.setCanvasElementSize();
       this.resetCanvasState();
 
       this.prepareJigsaw();
@@ -67,14 +64,30 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.boardSettingsSubscription.unsubscribe();
   }
 
-  initializeImageElement() {
-    this.imageElement.nativeElement.src = URL.createObjectURL(this.gameSettings.image);
+  initializeGame() {
+    const canvas = new Canvas(
+      this.canvasElement.nativeElement.getContext('2d')!
+    );
+
+    const jigsaw = new Jigsaw(
+      this.gameSettings.rows, this.gameSettings.cols, 
+      this.imageElement.nativeElement.width, 
+      this.imageElement.nativeElement.height, 
+      innerWidth, innerHeight, this.scale.jigsaw
+    );
+
+    this.game = new Game(
+      canvas, jigsaw
+    );
   }
 
-  adjustCanvas() {
-    this.initializeCanvas();
-    this.setCanvasElementSize();
-    this.initializeJigsaw();
+  setCanvasElementSize() {
+    this.canvasElement.nativeElement.width = this.game.canvas.size.width;
+    this.canvasElement.nativeElement.height = this.game.canvas.size.height;
+  }
+
+  setImageElementSrc() {
+    this.imageElement.nativeElement.src = URL.createObjectURL(this.gameSettings.image);
   }
 
   resetCanvasState() {
@@ -84,29 +97,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.boardSettings.preview) {
       this.displayBackground();
     }
-  }
-
-  initializeCanvas() {
-    this.canvas = new Canvas(
-      innerWidth, innerHeight, 
-      0, 0, 
-      this.canvasElement.nativeElement.getContext('2d')!, 
-      this.scale.canvas
-    );
-  }
-
-  setCanvasElementSize() {
-    this.canvasElement.nativeElement.width = this.canvas.size.width;
-    this.canvasElement.nativeElement.height = this.canvas.size.height;
-  }
-
-  initializeJigsaw() {
-    this.jigsaw = new Jigsaw(
-      this.gameSettings.rows, this.gameSettings.cols, 
-      this.imageElement.nativeElement.width, 
-      this.imageElement.nativeElement.height, 
-      innerWidth, innerHeight, this.scale.jigsaw
-    );
   }
 
   manageFullscreen() {
@@ -126,69 +116,69 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   clearCanvas() {
-    this.canvas.context.clearRect(
-      this.canvas.position.x, this.canvas.position.y, 
-      this.canvas.size.width, this.canvas.size.height
+    this.game.canvas.context.clearRect(
+      this.game.canvas.position.x, this.game.canvas.position.y, 
+      this.game.canvas.size.width, this.game.canvas.size.height
     );
 
-    this.canvas.context.fillStyle = 'rgba(26, 28, 39, 0.9)';
-    this.canvas.context.fillRect(
-      this.canvas.position.x, this.canvas.position.y, 
-      this.canvas.size.width, this.canvas.size.height
+    this.game.canvas.context.fillStyle = 'rgba(26, 28, 39, 0.9)';
+    this.game.canvas.context.fillRect(
+      this.game.canvas.position.x, this.game.canvas.position.y, 
+      this.game.canvas.size.width, this.game.canvas.size.height
     );
   }
 
   displayBoundaries() {
-    this.canvas.context.beginPath();
-    this.canvas.context.rect(
-      this.jigsaw.position.x, this.jigsaw.position.y, 
-      this.jigsaw.size.width, this.jigsaw.size.height
+    this.game.canvas.context.beginPath();
+    this.game.canvas.context.rect(
+      this.game.jigsaw.position.x, this.game.jigsaw.position.y, 
+      this.game.jigsaw.size.width, this.game.jigsaw.size.height
     );
-    this.canvas.context.stroke();
-    this.canvas.context.save();
+    this.game.canvas.context.stroke();
+    this.game.canvas.context.save();
   }
 
   displayBackground() {
-    this.canvas.context.save();
-    this.canvas.context.globalAlpha = this.alpha;
-    this.canvas.context.drawImage(
+    this.game.canvas.context.save();
+    this.game.canvas.context.globalAlpha = this.alpha;
+    this.game.canvas.context.drawImage(
       this.imageElement.nativeElement, 
-      this.jigsaw.position.x, this.jigsaw.position.y, 
-      this.jigsaw.size.width, this.jigsaw.size.height
+      this.game.jigsaw.position.x, this.game.jigsaw.position.y, 
+      this.game.jigsaw.size.width, this.game.jigsaw.size.height
     );
-    this.canvas.context.restore();
+    this.game.canvas.context.restore();
   }
 
   prepareJigsaw() {
-    for (let row = 0; row < this.jigsaw.size.rows; row++) {
-      for (let col = 0; col < this.jigsaw.size.cols; col++) {
+    for (let row = 0; row < this.game.jigsaw.size.rows; row++) {
+      for (let col = 0; col < this.game.jigsaw.size.cols; col++) {
         this.createPiece(row, col);
       }
     }
 
     this.drawJigsaw();
-    this.jigsawInitialized = true;
+    this.game.start();
   }
 
   setProgressBar() {
-    const progressBar: ProgressBar = { currentPieces: 0, allPieces: this.jigsaw.pieces.length, value: 0 };
+    const progressBar: ProgressBar = { currentPieces: 0, allPieces: this.game.jigsaw.pieces.length, value: 0 };
     this.gameService.setProgressBar(progressBar);
   }
 
   createPiece(row: number, col: number) {
-    const sourceX = this.jigsaw.sourcePieceSize.width * col;
-    const sourceY = this.jigsaw.sourcePieceSize.height * row;
+    const sourceX = this.game.jigsaw.sourcePieceSize.width * col;
+    const sourceY = this.game.jigsaw.sourcePieceSize.height * row;
 
-    let max = innerWidth - 3 * this.jigsaw.destPieceSize.width;
-    let min = this.jigsaw.destPieceSize.width;
+    let max = innerWidth - 3 * this.game.jigsaw.destPieceSize.width;
+    let min = this.game.jigsaw.destPieceSize.width;
     const destX = Math.floor(Math.random() * (max - min) + min);
 
-    max = innerHeight - 2 * this.jigsaw.destPieceSize.height;
-    min = this.jigsaw.destPieceSize.height;
+    max = innerHeight - 2 * this.game.jigsaw.destPieceSize.height;
+    min = this.game.jigsaw.destPieceSize.height;
     const destY = Math.floor(Math.random() * (max - min) + min);
 
-    const targetX = this.jigsaw.position.x + col * this.jigsaw.destPieceSize.width;
-    const targetY = this.jigsaw.position.y + row * this.jigsaw.destPieceSize.height;
+    const targetX = this.game.jigsaw.position.x + col * this.game.jigsaw.destPieceSize.width;
+    const targetY = this.game.jigsaw.position.y + row * this.game.jigsaw.destPieceSize.height;
 
     const piece = new Piece(
       row, col, 
@@ -197,53 +187,53 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       targetX, targetY
     );
     
-    this.jigsaw.addPiece(piece);
+    this.game.jigsaw.addPiece(piece);
   }
 
   drawPiece(piece: Piece) {
-    this.canvas.context.drawImage(
+    this.game.canvas.context.drawImage(
       this.imageElement.nativeElement, 
       piece.sourcePosition.x, piece.sourcePosition.y, 
-      this.jigsaw.sourcePieceSize.width, this.jigsaw.sourcePieceSize.height,
+      this.game.jigsaw.sourcePieceSize.width, this.game.jigsaw.sourcePieceSize.height,
       piece.destPosition.x, piece.destPosition.y, 
-      this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
+      this.game.jigsaw.destPieceSize.width, this.game.jigsaw.destPieceSize.height
     );
 
-    this.canvas.context.strokeRect(
+    this.game.canvas.context.strokeRect(
       piece.destPosition.x, piece.destPosition.y, 
-      this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height
+      this.game.jigsaw.destPieceSize.width, this.game.jigsaw.destPieceSize.height
     );
   }
 
   drawJigsaw() {
     this.resetCanvasState();
 
-    this.jigsaw.pieces.forEach(piece => {
+    this.game.jigsaw.pieces.forEach(piece => {
       this.drawPiece(piece);
     });
   }
 
   pickUpPiece(event: MouseEvent) {
-    for (let i = this.jigsaw.pieces.length - 1; i >= 0 && !this.activePiece; i--) {
-      const piece = this.jigsaw.pieces[i];
+    for (let i = this.game.jigsaw.pieces.length - 1; i >= 0 && !this.game.activePiece; i--) {
+      const piece = this.game.jigsaw.pieces[i];
 
       if (!piece.locked && this.isMouseOverPiece(piece, event)) {
-        this.activePiece = piece;
+        this.game.activePiece = piece;
       }
     }
   }
 
   dragPiece(event: MouseEvent) {
-    if (!this.activePiece) return;
+    if (!this.game.activePiece) return;
     
-    const adjacentPieces = this.getGroupOfAdjacentPieces(this.activePiece)
+    const adjacentPieces = this.getGroupOfAdjacentPieces(this.game.activePiece)
     const newPosition = this.calculateActivePiecePosition(event);
-    const vector = this.calculateVector(event, this.activePiece.destPosition);
+    const vector = this.calculateVector(event, this.game.activePiece.destPosition);
 
     adjacentPieces.forEach(piece => {
-      this.jigsaw.movePieceToTop(piece);
+      this.game.jigsaw.movePieceToTop(piece);
 
-      if (piece != this.activePiece) {
+      if (piece != this.game.activePiece) {
         piece.setPositionBasedOnVector(vector);
       } else {
         piece.setDestPosition(newPosition);
@@ -254,13 +244,13 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   dropPiece(event: MouseEvent) {
-    if (!this.activePiece) return;
+    if (!this.game.activePiece) return;
 
-    const adjacentPieces = this.getGroupOfAdjacentPieces(this.activePiece);
+    const adjacentPieces = this.getGroupOfAdjacentPieces(this.game.activePiece);
 
-    if (this.isPieceInTargetPosition(this.activePiece, event)) {
+    if (this.isPieceInTargetPosition(this.game.activePiece, event)) {
       adjacentPieces.forEach(piece => {
-        this.jigsaw.movePieceToBottom(piece);
+        this.game.jigsaw.movePieceToBottom(piece);
         piece.setPositionToTarget();
         piece.lock();
         this.gameService.updateProgressBar();
@@ -271,10 +261,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       const connector = this.findConnectionsBetweenPieces(adjacentPieces);
 
       if (connector) {
-        this.jigsaw.movePieceToTop(connector);
+        this.game.jigsaw.movePieceToTop(connector);
 
         adjacentPieces.forEach(piece => {
-          this.jigsaw.movePieceToTop(piece);
+          this.game.jigsaw.movePieceToTop(piece);
           piece.setPositionBasedOnReferencePiece(connector);
         });
 
@@ -282,13 +272,13 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    this.activePiece = null;
+    this.game.activePiece = null;
   }
 
   getGroupOfAdjacentPieces(piece: Piece, allAdjacentPieces: Piece[] = []) {
     const adjacentPieces = piece.connections
       .filter(connection => connection.connected)
-      .map(connection => this.jigsaw.getPiece(connection.row, connection.col));
+      .map(connection => this.game.jigsaw.getPiece(connection.row, connection.col));
 
     allAdjacentPieces.push(piece);
 
@@ -314,8 +304,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     const position = this.getMousePosition(event);
 
     return new Coordinates(
-      position.x - this.jigsaw.destPieceSize.width / 2, 
-      position.y- this.jigsaw.destPieceSize.height / 2
+      position.x - this.game.jigsaw.destPieceSize.width / 2, 
+      position.y- this.game.jigsaw.destPieceSize.height / 2
     );
   }
 
@@ -323,16 +313,16 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     const position = this.getMousePosition(event);
 
     return new Coordinates(
-      position.x - this.jigsaw.destPieceSize.width / 2 - currentPosition.x,
-      position.y - this.jigsaw.destPieceSize.height / 2 - currentPosition.y
+      position.x - this.game.jigsaw.destPieceSize.width / 2 - currentPosition.x,
+      position.y - this.game.jigsaw.destPieceSize.height / 2 - currentPosition.y
     );
   }
 
   isMouseOverPiece(piece: Piece, event: MouseEvent) {
     const position = this.getMousePosition(event);
 
-    if (position.x >= piece.destPosition.x && position.x <= piece.destPosition.x + this.jigsaw.destPieceSize.width 
-      && position.y >= piece.destPosition.y && position.y <= piece.destPosition.y + this.jigsaw.destPieceSize.height) {
+    if (position.x >= piece.destPosition.x && position.x <= piece.destPosition.x + this.game.jigsaw.destPieceSize.width 
+      && position.y >= piece.destPosition.y && position.y <= piece.destPosition.y + this.game.jigsaw.destPieceSize.height) {
       return true;
     } else {
       return false;
@@ -342,10 +332,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   isPieceInTargetPosition(piece: Piece, event: MouseEvent) {
     const position = this.getMousePosition(event);
 
-    if (position.x >= piece.targetPosition.x + this.jigsaw.offset.x 
-      && position.x <= piece.targetPosition.x + this.jigsaw.destPieceSize.width - this.jigsaw.offset.x
-      && position.y >= piece.targetPosition.y + this.jigsaw.offset.x 
-      && position.y <= piece.targetPosition.y + this.jigsaw.destPieceSize.height - this.jigsaw.offset.y) {
+    if (position.x >= piece.targetPosition.x + this.game.jigsaw.offset.x 
+      && position.x <= piece.targetPosition.x + this.game.jigsaw.destPieceSize.width - this.game.jigsaw.offset.x
+      && position.y >= piece.targetPosition.y + this.game.jigsaw.offset.x 
+      && position.y <= piece.targetPosition.y + this.game.jigsaw.destPieceSize.height - this.game.jigsaw.offset.y) {
       return true;
     } else {
       return false;
@@ -370,7 +360,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     for (let i = 0; i < piece.connections.length && !connector; i++) {
       const connection = piece.connections[i];
-      const adjacentPiece = this.jigsaw.getPiece(connection.row, connection.col);
+      const adjacentPiece = this.game.jigsaw.getPiece(connection.row, connection.col);
 
       if (!adjacentPiece || connection.connected) continue;
 
@@ -416,9 +406,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   canBeConnectedOnLeft(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(adjacentPiece.destPosition.x + this.jigsaw.destPieceSize.width - piece.destPosition.x) 
-      <= this.jigsaw.offset.x
-      && Math.abs(adjacentPiece.destPosition.y - piece.destPosition.y) <= this.jigsaw.offset.y) {
+    if (Math.abs(adjacentPiece.destPosition.x + this.game.jigsaw.destPieceSize.width - piece.destPosition.x) 
+      <= this.game.jigsaw.offset.x
+      && Math.abs(adjacentPiece.destPosition.y - piece.destPosition.y) <= this.game.jigsaw.offset.y) {
       return true;
     } else {
       return false;
@@ -426,9 +416,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   canBeConnectedOnRight(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(piece.destPosition.x + this.jigsaw.destPieceSize.width - adjacentPiece.destPosition.x) 
-      <= this.jigsaw.offset.x
-      && Math.abs(adjacentPiece.destPosition.y - piece.destPosition.y) <= this.jigsaw.offset.y) {
+    if (Math.abs(piece.destPosition.x + this.game.jigsaw.destPieceSize.width - adjacentPiece.destPosition.x) 
+      <= this.game.jigsaw.offset.x
+      && Math.abs(adjacentPiece.destPosition.y - piece.destPosition.y) <= this.game.jigsaw.offset.y) {
       return true;
     } else {
       return false;
@@ -436,9 +426,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   canBeConnectedOnTop(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(adjacentPiece.destPosition.y + this.jigsaw.destPieceSize.height - piece.destPosition.y)
-      <= this.jigsaw.offset.y
-      && Math.abs(adjacentPiece.destPosition.x - piece.destPosition.x) <= this.jigsaw.offset.x) {
+    if (Math.abs(adjacentPiece.destPosition.y + this.game.jigsaw.destPieceSize.height - piece.destPosition.y)
+      <= this.game.jigsaw.offset.y
+      && Math.abs(adjacentPiece.destPosition.x - piece.destPosition.x) <= this.game.jigsaw.offset.x) {
       return true;
     } else {
       return false;
@@ -446,9 +436,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   canBeConnectedOnBottom(piece: Piece, adjacentPiece: Piece) {
-    if (Math.abs(piece.destPosition.y + this.jigsaw.destPieceSize.height - adjacentPiece.destPosition.y) 
-      <= this.jigsaw.offset.y
-      && Math.abs(adjacentPiece.destPosition.x - piece.destPosition.x) <= this.jigsaw.offset.x) {
+    if (Math.abs(piece.destPosition.y + this.game.jigsaw.destPieceSize.height - adjacentPiece.destPosition.y) 
+      <= this.game.jigsaw.offset.y
+      && Math.abs(adjacentPiece.destPosition.x - piece.destPosition.x) <= this.game.jigsaw.offset.x) {
       return true;
     } else {
       return false;

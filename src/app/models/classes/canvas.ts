@@ -5,17 +5,11 @@ export class Canvas {
   private _size: Size;
   private _position: Coordinates;
   private _context: CanvasRenderingContext2D;
-  private _scale: number;
 
-  constructor(
-    windowWidth: number, windowHeight: number, 
-    x: number, y: number, 
-    context: CanvasRenderingContext2D, scale: number
-  ) {
-    this._size = new Size(windowWidth * scale, windowHeight * scale);
-    this._position = new Coordinates(x, y);
+  constructor(context: CanvasRenderingContext2D) {
+    this._size = new Size(innerWidth - 60, innerHeight);
+    this._position = new Coordinates(0, 0);
     this._context = context;
-    this._scale = scale;
   }
   
   public get position() {
