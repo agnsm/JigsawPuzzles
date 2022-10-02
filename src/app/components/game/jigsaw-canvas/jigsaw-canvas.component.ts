@@ -190,54 +190,70 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
         this.game.activePiece = piece;
       }
     }
+
+    if (!this.game.activePiece) {
+      this.game.canvasDragging = new Coordinates(event.clientX, event.clientY);
+    }
   }
 
   dragPiece(event: MouseEvent) {
-    if (!this.game.activePiece) return;
-    
-    const adjacentPieces = this.game.jigsaw.getGroupOfAdjacentPieces(this.game.activePiece)
-    const vector = this.calculateActivePieceVector(event);
-
-    this.game.activePiece.destPosition = this.calculateActivePiecePosition(event);
-
-    adjacentPieces.forEach(piece => {
-      this.game.jigsaw.movePieceToTop(piece);
-
-      if (piece != this.game.activePiece) {
-        piece.moveByVector(vector);
-      }
-    });
+    if (this.game.activePiece) {
+      const adjacentPieces = this.game.jigsaw.getGroupOfAdjacentPieces(this.game.activePiece)
+      const vector = this.calculateActivePieceVector(event);
+  
+      this.game.activePiece.destPosition = this.calculateActivePiecePosition(event);
+  
+      adjacentPieces.forEach(piece => {
+        this.game.jigsaw.movePieceToTop(piece);
+  
+        if (piece != this.game.activePiece) {
+          piece.moveByVector(vector);
+        }
+      });
+  
+    } else if (this.game.canvasDragging) {
+      const vector = new Coordinates(
+        event.clientX - this.game.canvasDragging.x, 
+        event.clientY - this.game.canvasDragging.y
+      );
+  
+      this.game.jigsaw.move(vector);
+  
+      this.game.canvasDragging = new Coordinates(event.clientX, event.clientY);
+    }
 
     this.drawJigsaw();
   }
 
   dropPiece(event: MouseEvent) {
-    if (!this.game.activePiece) return;
+    if (this.game.activePiece) {
+      const adjacentPieces = this.game.jigsaw.getGroupOfAdjacentPieces(this.game.activePiece);
 
-    const adjacentPieces = this.game.jigsaw.getGroupOfAdjacentPieces(this.game.activePiece);
-
-    if (this.isMouseOverTargetPosition(this.game.activePiece, event)) {
-      adjacentPieces.forEach(piece => {
-        this.game.jigsaw.movePieceToBottom(piece);
-        piece.setPositionToTarget();
-        piece.lock();
-        this.gameService.updateProgressBar();
-      });
-    } else {
-      const connector = this.findConnectionsBetweenPieces(adjacentPieces);
-
-      if (connector) {
-        this.game.jigsaw.movePieceToTop(connector);
-
+      if (this.isMouseOverTargetPosition(this.game.activePiece, event)) {
         adjacentPieces.forEach(piece => {
-          this.game.jigsaw.movePieceToTop(piece);
-          piece.setPositionBasedOnReferencePiece(connector);
+          this.game.jigsaw.movePieceToBottom(piece);
+          piece.setPositionToTarget();
+          piece.lock();
+          this.gameService.updateProgressBar();
         });
-      }
-    }
+      } else {
+        const connector = this.findConnectionsBetweenPieces(adjacentPieces);
 
-    this.drawJigsaw(); 
-    this.game.activePiece = null;
+        if (connector) {
+          this.game.jigsaw.movePieceToTop(connector);
+
+          adjacentPieces.forEach(piece => {
+            this.game.jigsaw.movePieceToTop(piece);
+            piece.setPositionBasedOnReferencePiece(connector);
+          });
+        }
+      }
+
+      this.game.activePiece = null;
+      this.drawJigsaw(); 
+    } else if (this.game.canvasDragging) {
+      this.game.canvasDragging = null;
+    }
   }
 
   getMousePosition(event: MouseEvent) {
@@ -260,7 +276,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  
   isMouseOverTargetPosition(piece: Piece, event: MouseEvent) {
     const position = this.getMousePosition(event);
 
@@ -291,6 +306,16 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       position.y - this.game.jigsaw.destPieceSize.height / 2 - this.game.activePiece!.destPosition.y
     );
   }
+
+  // calculateCanvasDraggingVector(event: MouseEvent) {
+  //   const position = this.getMousePosition(event);
+  //   this.game.canvasDragging = new Coordinates(event.clientX, event.clientY); //może getmouse position i odzielna metoda
+
+  //   return new Coordinates(
+  //     position.x - this.game.jigsaw.destPieceSize.width / 2 - this.game.activePiece!.destPosition.x,
+  //     position.y - this.game.jigsaw.destPieceSize.height / 2 - this.game.activePiece!.destPosition.y
+  //   );
+  // }
 
   findConnectionsBetweenPieces(adjacentPieces: Piece[]) {
     let connector: Piece | null = null;

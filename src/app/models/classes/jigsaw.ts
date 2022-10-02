@@ -144,10 +144,19 @@ export class Jigsaw {
     return allAdjacentPieces;
   }
 
+  public move(vector: Coordinates) {
+    this._position.addVector(vector);
+
+    this._pieces.forEach(piece => {
+      piece.moveByVector(vector);
+      this.calculatePieceTargetPosition(piece);
+    });
+  }
+
   public zoom(zoom: number) {
     this.calculateNewRatio(zoom);
     this.setSize();
-    this.setPosition(zoom);
+    this.calculatePosition(zoom);
     this.setDestPieceSize();
     this.setOffset();
 
@@ -168,7 +177,7 @@ export class Jigsaw {
     );
   }
 
-  private setPosition(zoom: number) {
+  private calculatePosition(zoom: number) {
     const vectorX = this._position.x - innerWidth / 2;
     const vectorXScaled = vectorX * zoom;
     const positionX = vectorXScaled + innerWidth / 2;
@@ -195,11 +204,11 @@ export class Jigsaw {
   }
 
   private zoomPiece(piece: Piece, zoom: number) {
-    this.setPieceDestPosition(piece, zoom);
-    this.setPieceTargetPosition(piece);
+    this.calculatePieceDestPosition(piece, zoom);
+    this.calculatePieceTargetPosition(piece);
   }
 
-  private setPieceDestPosition(piece: Piece, zoom: number) {
+  private calculatePieceDestPosition(piece: Piece, zoom: number) {
     const vectorX = piece.destPosition.x - innerWidth / 2;
     const vectorXScaled = vectorX * zoom;
     const destX = vectorXScaled + innerWidth / 2;
@@ -211,7 +220,7 @@ export class Jigsaw {
     piece.destPosition = new Coordinates(destX, destY);
   }
 
-  private setPieceTargetPosition(piece: Piece) {
+  private calculatePieceTargetPosition(piece: Piece) {
     const targetX = this._position.x + piece.col * this._destPieceSize.width;
     const targetY = this._position.y + piece.row * this._destPieceSize.height;
 
