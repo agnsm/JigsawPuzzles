@@ -6,8 +6,10 @@ import { Game } from 'src/app/models/classes/game';
 import { Jigsaw } from 'src/app/models/classes/jigsaw';
 import { Piece } from 'src/app/models/classes/piece';
 import { BoardSettings } from 'src/app/models/interfaces/board-settings';
+import { GameProgress } from 'src/app/models/interfaces/game-progress';
 import { GameSettings } from 'src/app/models/interfaces/game-settings';
 import { ProgressBar } from 'src/app/models/interfaces/progress-bar';
+import { Stopwatch } from 'src/app/models/interfaces/stopwatch';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
@@ -53,7 +55,7 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resetCanvasState();
 
       this.prepareJigsaw();
-      this.setProgressBar();
+      this.setGameProgress();
     }, 1000);
   }
 
@@ -150,13 +152,15 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.game.start();
   }
 
-  setProgressBar() {
+  setGameProgress() {
     const progressBar: ProgressBar = { 
       currentPieces: 0, 
       allPieces: this.game.jigsaw.pieces.length, 
-      value: 0 
+      value: 0
     };
-    this.gameService.setProgressBar(progressBar);
+    const gameProgress: GameProgress = { progressBar, time: null };
+
+    this.gameService.setGameProgress(gameProgress);
   }
 
   drawPiece(piece: Piece) {
@@ -306,16 +310,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       position.y - this.game.jigsaw.destPieceSize.height / 2 - this.game.activePiece!.destPosition.y
     );
   }
-
-  // calculateCanvasDraggingVector(event: MouseEvent) {
-  //   const position = this.getMousePosition(event);
-  //   this.game.canvasDragging = new Coordinates(event.clientX, event.clientY); //może getmouse position i odzielna metoda
-
-  //   return new Coordinates(
-  //     position.x - this.game.jigsaw.destPieceSize.width / 2 - this.game.activePiece!.destPosition.x,
-  //     position.y - this.game.jigsaw.destPieceSize.height / 2 - this.game.activePiece!.destPosition.y
-  //   );
-  // }
 
   findConnectionsBetweenPieces(adjacentPieces: Piece[]) {
     let connector: Piece | null = null;

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, take } from 'rxjs';
 import { BoardSettings } from '../models/interfaces/board-settings';
+import { GameProgress } from '../models/interfaces/game-progress';
 import { GameSettings } from '../models/interfaces/game-settings';
-import { ProgressBar } from '../models/interfaces/progress-bar';
+import { Stopwatch } from '../models/interfaces/stopwatch';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,8 @@ export class GameService {
   public gameSettings$ = this.gameSettings.asObservable();
   private boardSettings = new BehaviorSubject<BoardSettings | null>(null);
   public boardSettings$ = this.boardSettings.asObservable();
-  private progressBar = new BehaviorSubject<ProgressBar | null>(null);
-  public progressBar$ = this.progressBar.asObservable();
+  private gameProgress = new BehaviorSubject<GameProgress | null>(null);
+  public gameProgress$ = this.gameProgress.asObservable();
 
   constructor() { }
 
@@ -25,8 +26,8 @@ export class GameService {
     this.boardSettings.next(boardSettings);
   }
 
-  setProgressBar(progressBar: ProgressBar) {
-    this.progressBar.next(progressBar);
+  setGameProgress(gameProgress: GameProgress) {
+    this.gameProgress.next(gameProgress);
   }
 
   zoomIn() {
@@ -92,11 +93,20 @@ export class GameService {
   }
 
   updateProgressBar() {
-    this.progressBar$.pipe(take(1)).subscribe(progress => {
+    this.gameProgress$.pipe(take(1)).subscribe(progress => {
       if (progress) {
-        progress.currentPieces++;
-        progress.value = (progress.currentPieces / progress.allPieces) * 100;
-        this.progressBar.next(progress);
+        progress.progressBar.currentPieces++;
+        progress.progressBar.value = (progress.progressBar.currentPieces / progress.progressBar.allPieces) * 100;
+        this.gameProgress.next(progress);
+      }
+    });
+  }
+
+  recordTime(stopwatch: Stopwatch) {
+    this.gameProgress$.pipe(take(1)).subscribe(progress => {
+      if (progress) {
+        progress.time = stopwatch;
+        this.gameProgress.next(progress);
       }
     });
   }

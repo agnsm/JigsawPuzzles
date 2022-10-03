@@ -13,10 +13,11 @@ import { AppComponent } from './app.component';
 import { BoardManagementComponent } from './components/game/board-management/board-management.component';
 import { GameComponent } from './components/game/game/game.component';
 import { JigsawCanvasComponent } from './components/game/jigsaw-canvas/jigsaw-canvas.component';
-import { ProgressComponent } from './components/game/progress/progress.component';
+import { ProgressBarComponent } from './components/game/progress-bar/progress-bar.component';
 import { TimerComponent } from './components/game/timer/timer.component';
 import { NewGameComponent } from './components/new-game/new-game.component';
 import { TransitionComponent } from './components/shared/transition/transition.component';
+import { SummaryComponent } from './components/game/summary/summary.component';
 
 @NgModule({
   declarations: [
@@ -26,8 +27,9 @@ import { TransitionComponent } from './components/shared/transition/transition.c
     JigsawCanvasComponent,
     BoardManagementComponent,
     TransitionComponent,
-    ProgressComponent,
-    TimerComponent
+    ProgressBarComponent,
+    TimerComponent,
+    SummaryComponent
   ],
   imports: [
     BrowserModule,
