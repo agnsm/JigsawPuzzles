@@ -1,0 +1,13 @@
+<div class="summary-container">
+  <span class="congratulation">Gratulacje!</span>
+  Ułożyłaś/Ułożyłeś
+  <span class="score">
+    {{gameProgress.progressBar.allPieces}}
+  </span>
+  puzzli w czasie
+  <span class="time">
+    {{gameProgress.time!.hours}}:{{zeroPad(gameProgress.time!.minutes)}}:{{zeroPad(gameProgress.time!.seconds)}}
+  </span>
+  <img src="" alt="">
+  <button routerLink="/new-game">Zacznij nową grę</button>
+</div>

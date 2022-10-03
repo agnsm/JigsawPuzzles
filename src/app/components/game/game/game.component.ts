@@ -12,7 +12,7 @@ import { GameService } from 'src/app/services/game.service';
 export class GameComponent implements OnInit {
   gameSettings!: GameSettings;
 
-  constructor(private gameService: GameService, private router: Router) { }
+  constructor(public gameService: GameService, private router: Router) { }
 
   ngOnInit(): void {
     this.gameService.gameSettings$.pipe(take(1)).subscribe(gameSettings => {

@@ -1,0 +1,9 @@
+@use '/src/library';
+
+.summary-container {
+  width: 400px;
+  min-height: 500px;
+  background-color: library.$dark;
+  border-radius: 25px;
+  padding: 50px;
+}
