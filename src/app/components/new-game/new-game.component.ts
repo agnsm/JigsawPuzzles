@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faPuzzlePiece, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
@@ -34,7 +34,7 @@ export class NewGameComponent implements OnInit {
   faUpload = faUpload;
   faPuzzlePiece = faPuzzlePiece;
 
-  constructor(private gameService: GameService, private fb: FormBuilder, private router: Router) { }
+  constructor(private gameService: GameService, private fb: UntypedFormBuilder, private router: Router) { }
 
   ngOnInit(): void {
   }
