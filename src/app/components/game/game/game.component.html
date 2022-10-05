@@ -13,5 +13,6 @@
 <app-jigsaw-canvas [gameSettings]="gameSettings"></app-jigsaw-canvas>
 
 <div *ngIf="(gameService.gameProgress$ | async)?.progressBar?.value == 100" class="summary">
+  <ng-fireworks [options]="fireworksOptions" [style]="fireworksStyle"></ng-fireworks>
   <app-summary></app-summary>
 </div>

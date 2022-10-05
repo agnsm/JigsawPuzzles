@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { FireworksOptions } from '@fireworks-js/angular';
 import { take } from 'rxjs';
 import { GameSettings } from 'src/app/models/interfaces/game-settings';
 import { GameService } from 'src/app/services/game.service';
@@ -11,6 +12,15 @@ import { GameService } from 'src/app/services/game.service';
 })
 export class GameComponent implements OnInit {
   gameSettings!: GameSettings;
+  fireworksOptions = { };
+  fireworksStyle = { 
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    position: 'fixed',
+    zIndex: -1
+   };
 
   constructor(public gameService: GameService, private router: Router) { }
 
