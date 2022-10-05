@@ -1,9 +1,51 @@
 @use '/src/library';
 
 .summary-container {
-  width: 400px;
-  min-height: 500px;
-  background-color: library.$dark;
-  border-radius: 25px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: library.$primary;
+  background-color: library.$dark-light-transparent;
   padding: 50px;
+}
+
+.congratulations {
+  font-size: 2rem;
+  letter-spacing: 1px;
+  filter: drop-shadow(0 0 0.07rem library.$primary);
+  margin-bottom: 25px;
+}
+
+.highlight {
+  font-weight: bolder;
+}
+
+.new-game {
+  font-size: 5rem;
+  color: library.$primary;
+  background: transparent;
+  border: none;
+  margin-top: 50px;
+  animation: glowing 2s infinite;
+  transition: all 1s; 
+
+  &:hover {
+    cursor: pointer;
+    transform: rotateZ(180deg);
+  }
+}
+
+@keyframes glowing {
+  0% {
+    filter: drop-shadow(0 0 0.25rem library.$primary);
+  }
+
+  50% {
+    filter: drop-shadow(0 0 0.4rem library.$primary);
+  }
+
+  100% {
+    filter: drop-shadow(0 0 0.25rem library.$primary);
+  }
 }

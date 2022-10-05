@@ -1,13 +1,24 @@
-<div class="summary-container">
-  <span class="congratulation">Gratulacje!</span>
-  Ułożyłaś/Ułożyłeś
-  <span class="score">
-    {{gameProgress.progressBar.allPieces}}
-  </span>
-  puzzli w czasie
-  <span class="time">
-    {{gameProgress.time!.hours}}:{{zeroPad(gameProgress.time!.minutes)}}:{{zeroPad(gameProgress.time!.seconds)}}
-  </span>
-  <img src="" alt="">
-  <button routerLink="/new-game">Zacznij nową grę</button>
+<div @fadeEnterAnimation class="summary-container">
+  <div class="congratulations">
+    Gratulacje!
+  </div>
+
+  <div>
+    Ułożyłaś/eś
+    <span class="highlight">
+      {{gameProgress.progressBar.allPieces}}
+    </span>
+    puzzli
+  </div>
+
+  <div>
+    w czasie
+    <span class="highlight">
+      {{gameProgress.time!.hours}}:{{zeroPad(gameProgress.time!.minutes)}}:{{zeroPad(gameProgress.time!.seconds)}}
+    </span>
+  </div>
+
+  <button type="button" routerLink="/new-game" class="new-game">
+    <fa-icon [icon]="faPuzzlePiece"></fa-icon>
+  </button>
 </div>
