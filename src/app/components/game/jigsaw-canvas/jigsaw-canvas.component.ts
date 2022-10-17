@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { Canvas } from 'src/app/models/classes/canvas';
 import { Coordinates } from 'src/app/models/classes/coordinates';
 import { Game } from 'src/app/models/classes/game';
@@ -9,7 +9,6 @@ import { BoardSettings } from 'src/app/models/interfaces/board-settings';
 import { GameProgress } from 'src/app/models/interfaces/game-progress';
 import { GameSettings } from 'src/app/models/interfaces/game-settings';
 import { ProgressBar } from 'src/app/models/interfaces/progress-bar';
-import { Stopwatch } from 'src/app/models/interfaces/stopwatch';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
@@ -23,6 +22,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() gameSettings!: GameSettings;
   boardSettings!: BoardSettings;
   boardSettingsSubscription!: Subscription;
+  gameProgress!: GameProgress;
+  gameProgressSubscription!: Subscription;
 
   game!: Game;
 
@@ -44,6 +45,12 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
+
+    this.gameProgressSubscription = this.gameService.gameProgress$.subscribe(gameProgress => {
+      if (gameProgress) {
+        this.gameProgress = gameProgress;
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -61,13 +68,20 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.boardSettingsSubscription.unsubscribe();
+    this.gameProgressSubscription.unsubscribe();
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.game.canvas.resetSize();
     this.setCanvasElementSize();
-    this.drawJigsaw();
+    
+    if (this.gameProgress.progressBar.value == 100) {
+      this.game.jigsaw.defaultSizeAndPosition();
+      this.summaryCanvasState();
+    } else {
+      this.drawJigsaw(); 
+    }
   }
 
   setImageElementSrc() {
@@ -102,6 +116,12 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  summaryCanvasState() {
+    this.clearCanvas();
+    this.displayBoundaries();
+    this.displayBackground(1);
+  }
+
   manageFullImage() {
     if (this.boardSettings.fullImage) {
       this.imageElement.nativeElement.style.display = 'initial';
@@ -133,9 +153,9 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.game.canvas.context.save();
   }
 
-  displayBackground() {
+  displayBackground(alpha = 0.4) {
     this.game.canvas.context.save();
-    this.game.canvas.context.globalAlpha = 0.4;
+    this.game.canvas.context.globalAlpha = alpha;
     this.game.canvas.context.drawImage(
       this.imageElement.nativeElement, 
       this.game.jigsaw.position.x, this.game.jigsaw.position.y, 
@@ -252,7 +272,13 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.game.activePiece = null;
-      this.drawJigsaw(); 
+
+      if (this.gameProgress.progressBar.value == 100) {
+        this.game.jigsaw.defaultSizeAndPosition();
+        this.summaryCanvasState();
+      } else {
+        this.drawJigsaw(); 
+      }
     } else if (this.game.canvasDragging) {
       this.game.canvasDragging = null;
     }
