@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { BoardSettings } from 'src/app/models/interfaces/board-settings';
 import { GameService } from 'src/app/services/game.service';
@@ -25,6 +25,18 @@ export class BoardManagementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.boardSettingsSubscription.unsubscribe();
+  }
+  
+  @HostListener('window:wheel', ['$event'])
+  onWheel(event: WheelEvent) {
+    if (event.deltaY < 0)
+    {
+      this.gameService.zoomIn();
+    }
+    else if (event.deltaY > 0)
+    {
+      this.gameService.zoomOut();
+    }
   }
 
   zoomIn() {
