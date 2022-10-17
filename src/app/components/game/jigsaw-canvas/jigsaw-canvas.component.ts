@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Canvas } from 'src/app/models/classes/canvas';
 import { Coordinates } from 'src/app/models/classes/coordinates';
@@ -63,6 +63,13 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.boardSettingsSubscription.unsubscribe();
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.game.canvas.resetSize();
+    this.setCanvasElementSize();
+    this.drawJigsaw();
+  }
+
   setImageElementSrc() {
     this.imageElement.nativeElement.src = URL.createObjectURL(this.gameSettings.image);
   }
@@ -88,19 +95,10 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   resetCanvasState() {
-    this.manageFullscreen();
     this.clearCanvas();
     this.displayBoundaries();
     if (this.boardSettings.preview) {
       this.displayBackground();
-    }
-  }
-
-  manageFullscreen() {
-    if (this.boardSettings.fullscreen) {
-      document.documentElement.requestFullscreen();
-    } else if (document.fullscreenElement) {
-      document.exitFullscreen();
     }
   }
 

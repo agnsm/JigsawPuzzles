@@ -49,5 +49,14 @@ export class BoardManagementComponent implements OnInit, OnDestroy {
 
   toggleFullscreen() {
     this.gameService.toggleFullscreen();
+    this.manageFullscreen();
+  }
+
+  manageFullscreen() {
+    if (this.boardSettings.fullscreen) {
+      document.documentElement.requestFullscreen();
+    } else if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
   }
 }
