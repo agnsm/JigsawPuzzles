@@ -20,21 +20,13 @@ export class NewGameComponent implements OnInit {
     image: [null, Validators.required]
   });
 
-  sizing = [
-    { pieces: 24, rows: 4, cols: 6 },
-    { pieces: 35, rows: 5, cols: 7 },
-    { pieces: 54, rows: 6, cols: 9 },
-    { pieces: 77, rows: 7, cols: 11 },
-    { pieces: 96, rows: 8, cols: 12 },
-    { pieces: 150, rows: 10, cols: 15 },
-    { pieces: 204, rows: 12, cols: 17 },
-    { pieces: 320, rows: 16, cols: 20 }
-  ];
+  sizing: { pieces: number, rows: number, cols: number }[] = [];
 
   faUpload = faUpload;
   faPuzzlePiece = faPuzzlePiece;
 
-  constructor(private gameService: GameService, private fb: UntypedFormBuilder, private router: Router) { }
+  constructor(private gameService: GameService, private fb: UntypedFormBuilder, 
+    private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -49,7 +41,6 @@ export class NewGameComponent implements OnInit {
         image: file,
         pieces: null
       });
-
     } else {
       this.gameSettingsForm.patchValue({
         image: null,
@@ -62,12 +53,18 @@ export class NewGameComponent implements OnInit {
     const image = new Image();
     image.src = URL.createObjectURL(file);
     image.onload = () => {
-      if (image.height > image.width) {
-        this.sizing.forEach(option => {
-          const temp = option.rows;
-          option.rows = option.cols;
-          option.cols = temp;
-        });
+      const longerEdge = image.height >= image.width ? image.height : image.width;
+      const shorterEdge = image.height < image.width ? image.height : image.width;
+      this.sizing = [];
+
+      for (let i = 4; i < 27; i+=2) {
+        let pieceSize = longerEdge / i;
+        let j = Math.round(shorterEdge / pieceSize);
+
+        const rows = image.height >= image.width ? i : j;
+        const cols = image.height < image.width ? i : j;
+
+        this.sizing.push({ pieces: rows * cols, rows, cols });
       }
     }
   }
