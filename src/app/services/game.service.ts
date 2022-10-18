@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, take } from 'rxjs';
+
 import { BoardSettings } from '../models/interfaces/board-settings';
 import { GameProgress } from '../models/interfaces/game-progress';
 import { GameSettings } from '../models/interfaces/game-settings';
@@ -32,7 +33,7 @@ export class GameService {
 
   zoomIn() {
     this.boardSettings$.pipe(take(1)).subscribe(settings => {
-      if (settings && settings.zoomLevel < 5) {
+      if (settings && settings.zoomLevel < 10) {
         settings.zoom *= 10/9;
         settings.zoomChange = 10/9;
         settings.zoomLevel++;
