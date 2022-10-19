@@ -10,11 +10,23 @@
   animation: background-position 50s infinite;
 }
 
+.brand {
+  font-size: 4rem;
+  font-family: 'Londrina Outline', cursive;
+  font-weight: bold;
+  color: library.$dark;
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+  animation: glowing 2s infinite;
+  margin-right: 150px;
+}
+
 .new-game-form {
   width: 800px;
   align-items: center;
   background-color: library.$dark-transparent;
   padding: 50px;
+  border-radius: 15px;
 }
 
 .form-control-wrapper {
@@ -31,7 +43,7 @@
 
     .number {
       display: inline-block;
-      width: 60px;
+      width: 68px;
       text-align: center;
       background-color: library.$dark;
       font-size: 3rem;
