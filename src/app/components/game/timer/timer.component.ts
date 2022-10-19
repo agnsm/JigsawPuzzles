@@ -31,7 +31,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.gameProgressSubscription = this.gameService.gameProgress$.subscribe(progress => {
       if (progress && progress.progressBar.value == 100) {
         this.stopStopwatch();
-        this.gameProgressSubscription.unsubscribe();
       }
     });
 
@@ -63,7 +62,8 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   stopStopwatch() {
     clearInterval(this.stopwatchInterval);
-
+    
+    this.gameProgressSubscription.unsubscribe();
     this.gameService.recordTime(this.stopwatch);
   }
 
