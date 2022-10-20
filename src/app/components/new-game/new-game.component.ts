@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { faPuzzlePiece, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
 import { BoardSettings } from 'src/app/models/interfaces/board-settings';
+import { GameProgress } from 'src/app/models/interfaces/game-progress';
+import { ProgressBar } from 'src/app/models/interfaces/progress-bar';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
@@ -110,8 +112,17 @@ export class NewGameComponent implements OnInit {
       timer: true,
       fullscreen: false 
     };
+
+    const progressBar: ProgressBar = { 
+      currentPieces: 0, 
+      allPieces: this.gameSettingsForm.controls['pieces'].value,
+      value: 0
+    };
+    
+    const gameProgress: GameProgress = { progressBar, time: null };
     
     this.gameService.setBoardSettings(boardSettings);
+    this.gameService.setGameProgress(gameProgress);
     this.gameService.setGameSettings(this.gameSettingsForm.value);
 
     this.router.navigateByUrl('game');

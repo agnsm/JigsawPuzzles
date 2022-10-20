@@ -62,7 +62,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resetCanvasState();
 
       this.prepareJigsaw();
-      this.setGameProgress();
     }, 1000);
   }
 
@@ -168,17 +167,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     this.game.jigsaw.createPieces();
     this.drawJigsaw();
     this.game.start();
-  }
-
-  setGameProgress() {
-    const progressBar: ProgressBar = { 
-      currentPieces: 0, 
-      allPieces: this.game.jigsaw.pieces.length, 
-      value: 0
-    };
-    const gameProgress: GameProgress = { progressBar, time: null };
-
-    this.gameService.setGameProgress(gameProgress);
   }
 
   drawPiece(piece: Piece) {
