@@ -1,5 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, take } from 'rxjs';
+import { BehaviorSubject, catchError, map, of, take } from 'rxjs';
 
 import { BoardSettings } from '../models/interfaces/board-settings';
 import { GameProgress } from '../models/interfaces/game-progress';
@@ -17,7 +18,18 @@ export class GameService {
   private gameProgress = new BehaviorSubject<GameProgress | null>(null);
   public gameProgress$ = this.gameProgress.asObservable();
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
+
+ createFileFromUrl(url: string) {
+    return this.http.get(url, { responseType: 'blob' }).pipe(
+      map(blob => {
+        return new File([blob], url);
+      }),
+      catchError(error => {
+        return of(null);
+      })
+    );
+  }
 
   setGameSettings(gameSettings: GameSettings) {
     this.gameSettings.next(gameSettings);

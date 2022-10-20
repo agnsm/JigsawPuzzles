@@ -86,6 +86,42 @@
     }
   }
 
+  .file-input-wrapper {
+    > div {
+      margin-bottom: 15px;
+    }
+  }
+
+  .url-input {
+    width: 270px;
+    display: flex;
+
+    input[type=text] {
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      color: library.$primary;
+      background-color: transparent;
+      border: 1px solid library.$primary;
+      border-radius: 10px;
+      padding: 10px;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0px 0px 0.25rem 0px library.$primary;
+      }
+    }
+
+    button {
+      width: 15%;
+    }
+  }
+
+  .or {
+    text-align: center;
+    font-size: 0.8rem;
+    color: library.$primary;
+  }
+
   .file-input {
     display: flex;
     flex-direction: column;
@@ -141,6 +177,7 @@
   }
 
   .start {
+    width: 270px;
     font-size: 7rem;
     color: library.$primary;
     transition: all 1s;
@@ -172,8 +209,16 @@
     width: 800px;
   }
 
+  .url-input {
+    width: 310px;
+  }
+
   .radio-button {
     padding: 10px;
+  }
+
+  .start {
+    width: 310px;
   }
 }
 

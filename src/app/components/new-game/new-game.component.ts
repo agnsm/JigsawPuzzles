@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { faPuzzlePiece, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { fadeEnterAnimation, fadeLeaveAnimation } from 'src/app/helpers/animation';
@@ -17,7 +18,8 @@ export class NewGameComponent implements OnInit {
     pieces: [null, Validators.required],
     rows: [null, Validators.required],
     cols: [null, Validators.required],
-    image: [null, Validators.required]
+    image: [null, Validators.required],
+    imageUrl: ['']
   });
 
   sizing: { pieces: number, rows: number, cols: number }[] = [];
@@ -26,7 +28,7 @@ export class NewGameComponent implements OnInit {
   faPuzzlePiece = faPuzzlePiece;
 
   constructor(private gameService: GameService, private fb: UntypedFormBuilder, 
-    private router: Router) { }
+    private router: Router, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
   }
@@ -47,6 +49,28 @@ export class NewGameComponent implements OnInit {
         pieces: null
       });
     }
+  }
+
+  loadImageFromUrl() {
+    this.gameService.createFileFromUrl(this.gameSettingsForm.controls['imageUrl'].value).subscribe(file => {
+      if (file) {
+        this.checkResolution(file);
+
+        this.gameSettingsForm.patchValue({
+          image: file,
+          pieces: null
+        });
+      } else {
+        this.snackBar.open('Brak możliwości wgrania obrazka z podanego linku', 'OK', {
+          duration: 3000, panelClass: ['snackbar']
+        });
+
+        this.gameSettingsForm.patchValue({
+          image: null,
+          pieces: null
+        });
+      }
+    });
   }
 
   checkResolution(file: File) {

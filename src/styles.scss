@@ -60,8 +60,7 @@ html, body {
   height: 100%; 
 }
 
-body { 
-  margin: 0; 
+body {
   font-family: 'Nunito', sans-serif;
 }
 
@@ -83,4 +82,15 @@ body {
 
 ::-webkit-scrollbar-corner {
   background: library.$dark-transparent;
+}
+
+// custom snack bar 
+.snackbar {
+  color: library.$primary;
+  background-color: library.$dark-transparent;
+
+  button {
+    color: library.$primary;
+    font-weight: bold;
+  }
 }
