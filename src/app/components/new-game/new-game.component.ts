@@ -79,8 +79,8 @@ export class NewGameComponent implements OnInit {
     const image = new Image();
     image.src = URL.createObjectURL(file);
     image.onload = () => {
-      const longerEdge = image.height >= image.width ? image.height : image.width;
-      const shorterEdge = image.height < image.width ? image.height : image.width;
+      const longerEdge = Math.max(image.height, image.width);
+      const shorterEdge = Math.min(image.height, image.width);
       this.sizing = [];
 
       for (let i = 4; i < 27; i+=2) {

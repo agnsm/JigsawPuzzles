@@ -239,8 +239,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     const position = this.getMousePosition(event);
 
     return new Coordinates(
-      position.x - this.game.jigsaw.destPieceSize.width / 2, 
-      position.y- this.game.jigsaw.destPieceSize.height / 2
+      position.x - Math.round(this.game.jigsaw.destPieceSize.width / 2), 
+      position.y- Math.round(this.game.jigsaw.destPieceSize.height / 2)
     );
   }
 
@@ -248,8 +248,8 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     const position = this.getMousePosition(event);
 
     return new Coordinates(
-      position.x - this.game.jigsaw.destPieceSize.width / 2 - this.game.activePiece!.destPosition.x,
-      position.y - this.game.jigsaw.destPieceSize.height / 2 - this.game.activePiece!.destPosition.y
+      position.x - Math.round(this.game.jigsaw.destPieceSize.width / 2) - this.game.activePiece!.destPosition.x,
+      position.y - Math.round(this.game.jigsaw.destPieceSize.height / 2) - this.game.activePiece!.destPosition.y
     );
   }
 }
