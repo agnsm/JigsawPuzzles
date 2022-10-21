@@ -8,7 +8,6 @@ import { Piece } from 'src/app/models/classes/piece';
 import { BoardSettings } from 'src/app/models/interfaces/board-settings';
 import { GameProgress } from 'src/app/models/interfaces/game-progress';
 import { GameSettings } from 'src/app/models/interfaces/game-settings';
-import { ProgressBar } from 'src/app/models/interfaces/progress-bar';
 import { GameService } from 'src/app/services/game.service';
 
 @Component({
@@ -39,9 +38,12 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
             this.game.jigsaw.zoom(this.boardSettings.zoomChange);
           }
 
-          this.drawJigsaw();
+          if (boardSettings.preview != this.game.previewEnabled) {
+            this.game.togglePreview();
+          }
 
-          this.manageFullImage();
+          this.toggleFullImage();
+          this.game.drawJigsaw();
         }
       }
     });
@@ -59,8 +61,6 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.initializeGame();
       this.setCanvasElementSize();
-      this.resetCanvasState();
-
       this.prepareJigsaw();
     }, 1000);
   }
@@ -77,14 +77,27 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
     
     if (this.gameProgress.progressBar.value == 100) {
       this.game.jigsaw.defaultSizeAndPosition();
-      this.summaryCanvasState();
+      this.game.summaryCanvasState();
     } else {
-      this.drawJigsaw(); 
+      this.game.drawJigsaw(); 
     }
   }
 
   setImageElementSrc() {
     this.imageElement.nativeElement.src = URL.createObjectURL(this.gameSettings.image);
+  }
+
+  setCanvasElementSize() {
+    this.canvasElement.nativeElement.width = this.game.canvas.size.width;
+    this.canvasElement.nativeElement.height = this.game.canvas.size.height;
+  }
+
+  toggleFullImage() {
+    if (this.boardSettings.fullImage) {
+      this.imageElement.nativeElement.style.display = 'initial';
+    } else {
+      this.imageElement.nativeElement.style.display = 'none';
+    }
   }
 
   initializeGame() {
@@ -99,97 +112,13 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.imageElement.nativeElement.height
     );
 
-    this.game = new Game(canvas, jigsaw);
-  }
-
-  setCanvasElementSize() {
-    this.canvasElement.nativeElement.width = this.game.canvas.size.width;
-    this.canvasElement.nativeElement.height = this.game.canvas.size.height;
-  }
-
-  resetCanvasState() {
-    this.clearCanvas();
-    this.displayBoundaries();
-    if (this.boardSettings.preview) {
-      this.displayBackground();
-    }
-  }
-
-  summaryCanvasState() {
-    this.clearCanvas();
-    this.displayBoundaries();
-    this.displayBackground(1);
-  }
-
-  manageFullImage() {
-    if (this.boardSettings.fullImage) {
-      this.imageElement.nativeElement.style.display = 'initial';
-    } else {
-      this.imageElement.nativeElement.style.display = 'none';
-    }
-  }
-
-  clearCanvas() {
-    this.game.canvas.context.clearRect(
-      this.game.canvas.position.x, this.game.canvas.position.y, 
-      this.game.canvas.size.width, this.game.canvas.size.height
-    );
-
-    this.game.canvas.context.fillStyle = 'rgba(26, 28, 39, 0.9)';
-    this.game.canvas.context.fillRect(
-      this.game.canvas.position.x, this.game.canvas.position.y, 
-      this.game.canvas.size.width, this.game.canvas.size.height
-    );
-  }
-
-  displayBoundaries() {
-    this.game.canvas.context.beginPath();
-    this.game.canvas.context.rect(
-      this.game.jigsaw.position.x, this.game.jigsaw.position.y, 
-      this.game.jigsaw.size.width, this.game.jigsaw.size.height
-    );
-    this.game.canvas.context.stroke();
-    this.game.canvas.context.save();
-  }
-
-  displayBackground(alpha = 0.4) {
-    this.game.canvas.context.save();
-    this.game.canvas.context.globalAlpha = alpha;
-    this.game.canvas.context.drawImage(
-      this.imageElement.nativeElement, 
-      this.game.jigsaw.position.x, this.game.jigsaw.position.y, 
-      this.game.jigsaw.size.width, this.game.jigsaw.size.height
-    );
-    this.game.canvas.context.restore();
+    this.game = new Game(canvas, jigsaw, this.imageElement.nativeElement);
   }
 
   prepareJigsaw() {
     this.game.jigsaw.createPieces();
-    this.drawJigsaw();
+    this.game.drawJigsaw();
     this.game.start();
-  }
-
-  drawPiece(piece: Piece) {
-    this.game.canvas.context.drawImage(
-      this.imageElement.nativeElement, 
-      piece.sourcePosition.x, piece.sourcePosition.y, 
-      this.game.jigsaw.sourcePieceSize.width, this.game.jigsaw.sourcePieceSize.height,
-      piece.destPosition.x, piece.destPosition.y, 
-      this.game.jigsaw.destPieceSize.width, this.game.jigsaw.destPieceSize.height
-    );
-
-    this.game.canvas.context.strokeRect(
-      piece.destPosition.x, piece.destPosition.y, 
-      this.game.jigsaw.destPieceSize.width, this.game.jigsaw.destPieceSize.height
-    );
-  }
-
-  drawJigsaw() {
-    this.resetCanvasState();
-
-    this.game.jigsaw.pieces.forEach(piece => {
-      this.drawPiece(piece);
-    });
   }
 
   pickUpPiece(event: MouseEvent) {
@@ -232,11 +161,13 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
       this.game.canvasDragging = new Coordinates(event.clientX, event.clientY);
     }
 
-    this.drawJigsaw();
+    this.game.drawJigsaw();
   }
 
   dropPiece(event: MouseEvent) {
-    if (this.game.activePiece) {
+    if (this.game.canvasDragging) {
+      this.game.canvasDragging = null;
+    } else if (this.game.activePiece) {
       const adjacentPieces = this.game.jigsaw.getGroupOfAdjacentPieces(this.game.activePiece);
 
       if (this.isMouseOverTargetPosition(this.game.activePiece, event)) {
@@ -259,16 +190,15 @@ export class JigsawCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
 
-      this.game.activePiece = null;
-
       if (this.gameProgress.progressBar.value == 100) {
         this.game.jigsaw.defaultSizeAndPosition();
-        this.summaryCanvasState();
+        this.imageElement.nativeElement.style.display = 'none';
+        this.game.summaryCanvasState();
       } else {
-        this.drawJigsaw(); 
+        this.game.drawJigsaw(); 
       }
-    } else if (this.game.canvasDragging) {
-      this.game.canvasDragging = null;
+
+      this.game.activePiece = null;
     }
   }
 
