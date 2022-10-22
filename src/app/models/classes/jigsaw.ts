@@ -1,5 +1,5 @@
 import { Canvas } from "./canvas";
-import { Connection } from "./connection";
+import { Connection, Direction } from "./connection";
 import { Coordinates } from "./coordinates";
 import { Piece } from "./piece";
 import { Size } from "./size";
@@ -97,10 +97,10 @@ export class Jigsaw {
     const targetY = this.position.y + row * this.destPieceSize.height;
 
     let connections = [
-      new Connection('left', row, col - 1),
-      new Connection('right', row, col + 1),
-      new Connection('top', row - 1, col),
-      new Connection('bottom', row + 1, col)
+      new Connection(Direction.Left, row, col - 1),
+      new Connection(Direction.Right, row, col + 1),
+      new Connection(Direction.Top, row - 1, col),
+      new Connection(Direction.Bottom, row + 1, col)
     ];
 
     connections = connections.filter(connection => {
@@ -109,12 +109,12 @@ export class Jigsaw {
     });
 
     connections.forEach(connection => {
-      if (connection.direction == 'left') {
+      if (connection.direction == Direction.Left) {
         const leftAdjacent = this.getPiece(connection.row, connection.col);
-        connection.type = leftAdjacent!.connections.find(x => x.direction == 'right')!.type;
-      } else if (connection.direction == 'top') {
+        connection.type = leftAdjacent!.connections.find(x => x.direction == Direction.Right)!.type;
+      } else if (connection.direction == Direction.Top) {
         const rightAdjacent = this.getPiece(connection.row, connection.col);
-        connection.type = rightAdjacent!.connections.find(x => x.direction == 'bottom')!.type;
+        connection.type = rightAdjacent!.connections.find(x => x.direction == Direction.Bottom)!.type;
       } else {
         let type = Math.random() < 0.5 ? -1 : 1;
         connection.type = type;

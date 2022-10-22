@@ -1,4 +1,4 @@
-import { Connection } from "./connection";
+import { Connection, Direction } from "./connection";
 import { Coordinates } from "./coordinates";
 import { Jigsaw } from "./jigsaw";
 
@@ -119,34 +119,34 @@ export class Piece {
       if (!adjacentPiece || connection.connected) continue;
 
       switch (connection.direction) {
-        case 'left':
+        case Direction.Left:
           if (this.canBeConnectedOnLeft(adjacentPiece)) {
-            this.setConnection('left');
-            adjacentPiece.setConnection('right');
+            this.setConnection(Direction.Left);
+            adjacentPiece.setConnection(Direction.Right);
             connector = adjacentPiece;
           }
           break;
 
-        case 'right':
+        case Direction.Right:
           if (this.canBeConnectedOnRight(adjacentPiece)) {
-            this.setConnection('right');
-            adjacentPiece.setConnection('left');
+            this.setConnection(Direction.Right);
+            adjacentPiece.setConnection(Direction.Left);
             connector = adjacentPiece;
           }
           break;
 
-        case 'top':
+        case Direction.Top:
           if (this.canBeConnectedOnTop(adjacentPiece)) {
-            this.setConnection('top');
-            adjacentPiece.setConnection('bottom');
+            this.setConnection(Direction.Top);
+            adjacentPiece.setConnection(Direction.Bottom);
             connector = adjacentPiece;
           }
           break;
 
-        case 'bottom':
+        case Direction.Bottom:
           if (this.canBeConnectedOnBottom(adjacentPiece)) {
-            this.setConnection('bottom');
-            adjacentPiece.setConnection('top');
+            this.setConnection(Direction.Bottom);
+            adjacentPiece.setConnection(Direction.Top);
             connector = adjacentPiece;
           }
           break;
@@ -159,7 +159,7 @@ export class Piece {
     return connector;
   }
 
-  private setConnection(direction: string) {
+  private setConnection(direction: Direction) {
     this._connections.map(connection => {
       if (connection.direction == direction) {
         connection.connect();

@@ -1,11 +1,18 @@
+export enum Direction {
+  Left = 'left',
+  Right = 'right',
+  Top = 'top',
+  Bottom = 'bottom'
+};
+
 export class Connection {
-  private _direction: string;
+  private _direction: Direction;
   private _row: number;
   private _col: number;
   private _connected: boolean;
   private _type: number;
 
-  constructor(direction: string, row: number, col: number) {
+  constructor(direction: Direction, row: number, col: number) {
     this._direction = direction;
     this._row = row;
     this._col = col;

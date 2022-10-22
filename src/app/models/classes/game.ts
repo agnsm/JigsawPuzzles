@@ -1,4 +1,5 @@
 import { Canvas } from "./canvas";
+import { Direction } from "./connection";
 import { Coordinates } from "./coordinates";
 import { Jigsaw } from "./jigsaw";
 import { Piece } from "./piece";
@@ -144,28 +145,28 @@ export class Game {
 
     let connection;
 
-    if (connection = piece.connections.find(x => x.direction == "top")) {
+    if (connection = piece.connections.find(x => x.direction == Direction.Top)) {
       this.drawHorizontalEdge(startingPoint, horizontalOffsetBefore, horizontalOffsetAfter, connection.type * curveConvexityDest);
     } 
 
     startingPoint.addVector(new Coordinates(this.jigsaw.destPieceSize.width, 0));
     this.canvas.context.lineTo(startingPoint.x, startingPoint.y);
 
-    if (connection = piece.connections.find(x => x.direction == "right")) {
+    if (connection = piece.connections.find(x => x.direction == Direction.Right)) {
       this.drawVerticalEdge(startingPoint, verticalOffsetBefore, verticalOffsetAfter, connection.type * curveConvexityDest);
     }
 
     startingPoint.addVector(new Coordinates(0, this.jigsaw.destPieceSize.height));
     this.canvas.context.lineTo(startingPoint.x, startingPoint.y);
 
-    if (connection = piece.connections.find(x => x.direction == "bottom")) {
+    if (connection = piece.connections.find(x => x.direction == Direction.Bottom)) {
       this.drawHorizontalEdge(startingPoint, -horizontalOffsetBefore, -horizontalOffsetAfter, connection.type * curveConvexityDest);
     }
 
     startingPoint.addVector(new Coordinates(-this.jigsaw.destPieceSize.width, 0));
     this.canvas.context.lineTo(startingPoint.x, startingPoint.y);
 
-    if (connection = piece.connections.find(x => x.direction == "left")) {
+    if (connection = piece.connections.find(x => x.direction == Direction.Left)) {
       this.drawVerticalEdge(startingPoint, -verticalOffsetBefore, -verticalOffsetAfter, connection.type * curveConvexityDest);
     }
 
