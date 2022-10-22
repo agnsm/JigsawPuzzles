@@ -3,12 +3,14 @@ export class Connection {
   private _row: number;
   private _col: number;
   private _connected: boolean;
+  private _type: number;
 
   constructor(direction: string, row: number, col: number) {
     this._direction = direction;
     this._row = row;
     this._col = col;
     this._connected = false;
+    this._type = 0;
   }
 
   public get direction() {
@@ -25,6 +27,14 @@ export class Connection {
 
   public get connected() {
     return this._connected;
+  }
+
+  public get type() {
+    return this._type;
+  }
+
+  public set type(value: number) {
+    this._type = value;
   }
 
   public connect() {

@@ -142,42 +142,50 @@ export class Game {
     const curveConvexityDest = Math.round(this.jigsaw.destPieceSize.width * 1/5);
     const curveConvexitySource = Math.round(this.jigsaw.sourcePieceSize.width * 1/5);
 
-    if (piece.connections.find(x => x.direction == "top")) {
-      this.drawHorizontalEdge(startingPoint, horizontalOffsetBefore, horizontalOffsetAfter, curveConvexityDest);
+    let connection;
+
+    if (connection = piece.connections.find(x => x.direction == "top")) {
+      this.drawHorizontalEdge(startingPoint, horizontalOffsetBefore, horizontalOffsetAfter, connection.type * curveConvexityDest);
     } 
 
     startingPoint.addVector(new Coordinates(this.jigsaw.destPieceSize.width, 0));
     this.canvas.context.lineTo(startingPoint.x, startingPoint.y);
 
-    if (piece.connections.find(x => x.direction == "right")) {
-      this.drawVerticalEdge(startingPoint, verticalOffsetBefore, verticalOffsetAfter, curveConvexityDest);
+    if (connection = piece.connections.find(x => x.direction == "right")) {
+      this.drawVerticalEdge(startingPoint, verticalOffsetBefore, verticalOffsetAfter, connection.type * curveConvexityDest);
     }
 
     startingPoint.addVector(new Coordinates(0, this.jigsaw.destPieceSize.height));
     this.canvas.context.lineTo(startingPoint.x, startingPoint.y);
 
-    if (piece.connections.find(x => x.direction == "bottom")) {
-      this.drawHorizontalEdge(startingPoint, -horizontalOffsetBefore, -horizontalOffsetAfter, curveConvexityDest);
+    if (connection = piece.connections.find(x => x.direction == "bottom")) {
+      this.drawHorizontalEdge(startingPoint, -horizontalOffsetBefore, -horizontalOffsetAfter, connection.type * curveConvexityDest);
     }
 
     startingPoint.addVector(new Coordinates(-this.jigsaw.destPieceSize.width, 0));
     this.canvas.context.lineTo(startingPoint.x, startingPoint.y);
 
-    if (piece.connections.find(x => x.direction == "left")) {
-      this.drawVerticalEdge(startingPoint, -verticalOffsetBefore, -verticalOffsetAfter, curveConvexityDest);
+    if (connection = piece.connections.find(x => x.direction == "left")) {
+      this.drawVerticalEdge(startingPoint, -verticalOffsetBefore, -verticalOffsetAfter, connection.type * curveConvexityDest);
     }
 
     this.canvas.context.lineTo(piece.destPosition.x, piece.destPosition.y);
+
+    // if (!piece.locked) {
+    //   this.canvas.context.shadowBlur = 10;
+    //   this.canvas.context.shadowColor = 'rgba(0, 0, 0, 0.75)';
+    //   this.canvas.context.fill();
+    // }
 
     this.canvas.context.stroke();
     this.canvas.context.clip();
 
     this.canvas.context.drawImage(
       this._image, 
-      piece.sourcePosition.x, piece.sourcePosition.y, 
-      this.jigsaw.sourcePieceSize.width + curveConvexitySource, this.jigsaw.sourcePieceSize.height + curveConvexitySource,
-      piece.destPosition.x, piece.destPosition.y, 
-      this.jigsaw.destPieceSize.width + curveConvexityDest, this.jigsaw.destPieceSize.height + curveConvexityDest
+      piece.sourcePosition.x - curveConvexitySource, piece.sourcePosition.y - curveConvexitySource, 
+      this.jigsaw.sourcePieceSize.width + 2 * curveConvexitySource, this.jigsaw.sourcePieceSize.height + 2 * curveConvexitySource,
+      piece.destPosition.x - curveConvexityDest, piece.destPosition.y - curveConvexityDest, 
+      this.jigsaw.destPieceSize.width + 2 * curveConvexityDest, this.jigsaw.destPieceSize.height + 2 * curveConvexityDest
     );
 
     this.canvas.context.restore();

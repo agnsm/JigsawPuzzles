@@ -19,7 +19,8 @@ export class Piece {
     rowsNum: number, colsNum: number,
     sourceX: number, sourceY: number, 
     destX: number, destY: number,
-    targetX: number, targetY: number
+    targetX: number, targetY: number,
+    connections: Connection[]
   ) {
     this._jigsaw = jigsaw;
 
@@ -32,17 +33,7 @@ export class Piece {
 
     this._locked = false;
 
-    this._connections.push(
-      new Connection('left', row, col - 1),
-      new Connection('right', row, col + 1),
-      new Connection('top', row - 1, col),
-      new Connection('bottom', row + 1, col)
-    );
-
-    this._connections = this._connections.filter(connection => {
-      return connection.row >= 0 && connection.row < rowsNum
-        && connection.col >= 0 && connection.col < colsNum;
-    });
+    this._connections = connections;
   }
 
   public get row() {
