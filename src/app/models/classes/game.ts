@@ -63,26 +63,26 @@ export class Game {
     this._previewEnabled = !this._previewEnabled;
   }
 
-  public resetCanvasState() {
-    this.clearCanvas();
-    this.displayBoundaries();
-    if (this._previewEnabled) {
-      this.displayBackground();
-    }
-  }
-
-  public summaryCanvasState() {
-    this.clearCanvas();
-    this.displayBoundaries();
-    this.displayBackground(1);
-  }
-
   public drawJigsaw() {
     this.resetCanvasState();
 
     this.jigsaw.pieces.forEach(piece => {
       this.drawCutPiece(piece);
     });
+  }
+
+  public drawFinishedJigsaw() {
+    this.clearCanvas();
+    this.displayBoundaries();
+    this.displayBackground(1);
+  }
+
+  private resetCanvasState() {
+    this.clearCanvas();
+    this.displayBoundaries();
+    if (this._previewEnabled) {
+      this.displayBackground();
+    }
   }
 
   private clearCanvas() {
