@@ -174,7 +174,7 @@ export class Game {
     this.canvas.context.stroke();
     this.canvas.context.clip();
 
-    const curveConvexitySource = Math.round(Math.max(this.jigsaw.sourcePieceSize.width, this.jigsaw.destPieceSize.height) * 0.1);
+    const curveConvexitySource = Math.round(Math.max(this.jigsaw.sourcePieceSize.width, this.jigsaw.sourcePieceSize.height) * 0.1);
     const curveConvexityDest = Math.round(Math.max(this.jigsaw.destPieceSize.width, this.jigsaw.destPieceSize.height) * 0.1);
 
     this.canvas.context.drawImage(
